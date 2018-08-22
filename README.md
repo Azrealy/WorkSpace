@@ -13,17 +13,17 @@ Create Virtualenv for developing backend server
 ```
 If mkvirtualenv doesn't setup before, following this guide to setup it.
 
-    * pip install virtualenvwrapper.
-        ```sh
-        % pip install virtualenvwrapper
-        ```
-    * setup mkvirtualenv command.
-        ```sh
-        % export WORKON_HOME=~/Envs
-        % mkdir -p $WORKON_HOME
-        % source /usr/local/bin/virtualenvwrapper.sh
-        % mkvirtualenv dev-workspace
-        ```
+  * pip install virtualenvwrapper.
+    ```sh
+    % pip install virtualenvwrapper
+    ```
+  * setup mkvirtualenv command.
+    ```sh
+    % export WORKON_HOME=~/Envs
+    % mkdir -p $WORKON_HOME
+    % source /usr/local/bin/virtualenvwrapper.sh
+    % mkvirtualenv dev-workspace
+    ```
 
 After the python virtualenv setup, install `WorlSpace` package to site-packages:
 ```sh
