@@ -2,11 +2,12 @@
 import signal
 import logging
 from tornado.log import LogFormatter, app_log, access_log, gen_log
-from tornado import web, ioloop
+from tornado import web, ioloop, gen
 from workspace.api_server.handlers.todo import TodoListHandler, TodoInfoHandler
 from tornado.httpserver import HTTPServer
-from traitlets import Dict, Integer, Unicode, observe
+from traitlets import Dict, Integer, Unicode, observe, Float, Bool
 from traitlets.config.application import catch_config_error, Application
+from .docker_client import DockerAPIClient
 
 
 class WebAPIServer(Application):
@@ -19,7 +20,12 @@ class WebAPIServer(Application):
     aliases = {
         'ip': 'WebAPIServer.ip',
         'port': 'WebAPIServer.port',
-        'database_url': 'WebAPIServer.database_url'
+        'database_url': 'WebAPIServer.database_url',
+        'docker-host': 'WebAPIServer.docker_host',
+        'docker-tlscacert': 'WebAPIServer.docker_tlscacert',
+        'docker-tlscert': 'WebAPIServer.docker_tlscert',
+        'docker-tlskey': 'WebAPIServer.docker_tlskey',
+        'docker-api-version': 'WebAPIServer.docker_api_version',
     }
 
     database_url = Unicode(
@@ -93,6 +99,36 @@ class WebAPIServer(Application):
         help='The port the server will listen on.'
     )
 
+    docker_host = Unicode(
+        '', config=True,
+        help='a URL to connect Docker daemon (Docker Engine or Swarm Manager).'
+    )
+
+    docker_tlsverify = Bool(
+        None, config=True, allow_none=True,
+        help='Use TLS to connect Docker daemon.'
+    )
+
+    docker_tlscacert = Unicode(
+        '', config=True,
+        help='Trust certs signed only by this CA if TLS is enabled for connecting Docker daemon.'
+    )
+
+    docker_tlscert = Unicode(
+        '', config=True,
+        help='Path to TLS certificate file for TLS for connecting Docker daemon.'
+    )
+
+    docker_tlskey = Unicode(
+        '', config=True,
+        help='Path to TLS key file for TLS. for connecting Docker daemon.'
+    )
+
+    docker_api_version = Float(
+        1.24, config=True,
+        help='The version of the API to use. Default: ``1.24``'
+    )
+
     def init_logging(self):
         """
         Initializes logging.
@@ -106,6 +142,18 @@ class WebAPIServer(Application):
         logger.propagate = True
         logger.parent = self.log
         logger.setLevel(self.log.level)
+
+    @gen.coroutine
+    def ini_docker_event(self):
+        docker_client_ini = {
+                'host': self.docker_host,
+                'tlsverify': self.docker_tlsverify,
+                'tlscacert': self.docker_tlscacert,
+                'tlscert': self.docker_tlscert,
+                'tlskey': self.docker_tlskey
+            }
+        container = DockerAPIClient(1, str(self.docker_api_version), **docker_client_ini)
+        container.running_observable()
 
     def init_webapp(self):
         """
@@ -123,6 +171,7 @@ class WebAPIServer(Application):
         Initializes the main application of WebAPI Server.
         """
         super().initialize(argv)
+        self.ini_docker_event()
         self.init_webapp()
         self.init_logging()
 

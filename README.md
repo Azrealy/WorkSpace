@@ -38,8 +38,10 @@ Using this `curl_tests/<bash.sh>` to check the server response.
 # Architecture of Docker container server
 
 * `ContainerManager` class for handle the `docker run` and `docker rm` cmd to create/remove container by using subprocess.
-* `EventManager` class for handle the event from `docker event` cmd, which will use to create container object.
-* `ContainerHandle` class for handle the request of create/remove container request and response a container object to webUI.
+* `EventManager` class for listen the event stream from `docker event` cmd, depends those events status to update container object.
+* `ContainerHandle` class for handle the request of create/remove container request and response a container object to webUI. 
+
+Using redis to connect the `ContainerHandle` class, `EventManager` class and `ContainerManager` class. Browser send a request of create container, `ContainerHandle` receive this request and store as a dict of `operation_type: CREATE` and `container_name: <NAME>` to the redis queue. `ContainerManager` will inherit `TaskWatcher` class to listen redis queue, when the dict stored by the `ContainerHandle` in the queue, take out this dict from queue and depending the `operation_type` to execute `docker` cmd.  
 
 # Build docker image
 Use the following command to build jupyter image base on the `Dockerfile`.
