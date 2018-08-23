@@ -5,6 +5,12 @@ This project is a work space where deploy useful tools for my daily developing.
 This project is to create some useful tools which always used by my daily backend development. And integrating those tools at one website. The early stage of this project will implement `Todo` tools and `jupyter notebook`, using the docker, python tornado, React and Postgre.
 And maybe at the middle stage I will try to implement `blog` tools and add config options for `jupyter notebook` containers. 
 
+# Architecture of Docker container server
+
+* `ContainerManager` class for handle the `docker run` and `docker rm` cmd to create/remove container by using subprocess.
+* `EventManager` class for handle the event from `docker event` cmd, which will use to create container object.
+* `ContainerHandle` class for handle the request of create/remove container request and response a container object to webUI.
+
 # Build docker image
 Use the following command to build jupyter image base on the `Dockerfile`.
 ```sh
