@@ -35,6 +35,12 @@ Start the Web API server in the background:
 ```
 Using this `curl_tests/<bash.sh>` to check the server response.
  
+# Architecture of Docker container server
+
+* `ContainerManager` class for handle the `docker run` and `docker rm` cmd to create/remove container by using subprocess.
+* `EventManager` class for handle the event from `docker event` cmd, which will use to create container object.
+* `ContainerHandle` class for handle the request of create/remove container request and response a container object to webUI.
+
 # Build docker image
 Use the following command to build jupyter image base on the `Dockerfile`.
 ```sh
