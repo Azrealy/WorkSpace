@@ -27,6 +27,7 @@ class WebAPIServer(Application):
         'docker-tlscacert': 'WebAPIServer.docker_tlscacert',
         'docker-tlscert': 'WebAPIServer.docker_tlscert',
         'docker-tlskey': 'WebAPIServer.docker_tlskey',
+        'docker-from-env': 'WebAPIServer.docker_from_env',
         'docker-api-version': 'WebAPIServer.docker_api_version',
     }
 
@@ -131,6 +132,11 @@ class WebAPIServer(Application):
         help='The version of the API to use. Default: ``1.24``'
     )
 
+    docker_from_env = Bool(
+        False, config=True,
+        help='The version of the API to use. Default: ``1.24``'
+    )
+
     redis_url = Unicode(
         'redis://localhost:6379/0',
         help='The url of the Redis'
@@ -151,7 +157,9 @@ class WebAPIServer(Application):
         logger.setLevel(self.log.level)
 
     def ini_docker_event(self):
+        print(self.docker_from_env)
         docker_client_ini = {
+                'from_env': self.docker_from_env,
                 'host': self.docker_host,
                 'tlsverify': self.docker_tlsverify,
                 'tlscacert': self.docker_tlscacert,

@@ -28,42 +28,6 @@ class DockerEvent(object):
         return self.event['Actor']['Attributes'].get('name')
 
     @property
-    def compose_project_name(self):
-        """
-        Returns the project name of `docker-compose`
-
-        Returns
-        -------
-        project : str
-            Project name.
-        """
-        return self.event['Actor']['Attributes'].get('com.docker.compose.project')
-
-    @property
-    def compose_service_name(self):
-        """
-        Returns the service name of `docker-compose`.
-
-        Returns
-        -------
-        service : str
-            Service name.
-        """
-        return self.event['Actor']['Attributes'].get('com.docker.compose.service')
-
-    @property
-    def compose_container_number(self):
-        """
-        Returns the container number of `docker-compose`.
-
-        Returns
-        -------
-        container_number : int
-            Container number.
-        """
-        return int(self.event['Actor']['Attributes'].get('com.docker.compose.container-number'))
-
-    @property
     def event_type(self):
         """
         Returns the event type. (e.g. container, network or volume)

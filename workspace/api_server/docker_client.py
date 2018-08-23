@@ -17,7 +17,7 @@ class DockerAPIClient(object):
     """
     Depend on containers number creating multithreading to get container logs.
     """
-    def __init__(self, num_containers, version, host=None, tlsverify=None,
+    def __init__(self, num_containers, version, from_env=False, host=None, tlsverify=None,
                  tlscacert=None, tlscert=None, tlskey=None):
         """
         Initializes ContainerLogsGetter.
@@ -58,48 +58,52 @@ class DockerAPIClient(object):
             variable and `/.docker` is used if DOCKER_CERT_PATH does
             not exist).
         """
-        m = re.match('tcp://(.*):(.*)', host or os.getenv('DOCKER_HOST', ''))
-        if m is None:
-            raise ValueError('Cannot get URL of Docker Daemon.')
-        hostname = m.group(1)
-        port = m.group(2)
-
-        self.client_params = {}
-        self.config_client = {}
-        use_tls = tlsverify if tlsverify is not None else os.getenv('DOCKER_TLS_VERIFY', '') != ''
-        if use_tls:
-            self.base_url = 'https://{}:{}'.format(hostname, port)
-            default_cert_path = Path(os.getenv(
-                'DOCKER_CERT_PATH', '{}/.docker'.format(os.getenv('HOME'))
-            ))
-            if tlscacert:
-                self.client_params['ca_certs'] = tlscacert
-            else:
-                self.client_params['ca_certs'] = str(default_cert_path / 'ca.pem')
-
-            if tlscert:
-                self.client_params['client_cert'] = tlscert
-            else:
-                self.client_params['client_cert'] = str(default_cert_path / 'cert.pem')
-
-            if tlskey:
-                self.client_params['client_key'] = tlskey
-            else:
-                self.client_params['client_key'] = str(default_cert_path / 'key.pem')
-
-            self.config_client['tls'] = TLSConfig(
-                client_cert=(self.client_params['client_cert'],
-                             self.client_params['client_key']),
-                ca_cert=self.client_params['ca_certs'],
-                verify=use_tls
-            )
+        print(from_env)
+        if from_env:
+            self.client = docker.from_env()
         else:
-            self.base_url = 'http://{}:{}'.format(hostname, port)
-        self.config_client['version'] = version
-        self.config_client['base_url'] = self.base_url
+            m = re.match('tcp://(.*):(.*)', host or os.getenv('DOCKER_HOST', ''))
+            if m is None:
+                raise ValueError('Cannot get URL of Docker Daemon.')
+            hostname = m.group(1)
+            port = m.group(2)
+
+            self.client_params = {}
+            self.config_client = {}
+            use_tls = tlsverify if tlsverify is not None else os.getenv('DOCKER_TLS_VERIFY', '') != ''
+            if use_tls:
+                self.base_url = 'https://{}:{}'.format(hostname, port)
+                default_cert_path = Path(os.getenv(
+                    'DOCKER_CERT_PATH', '{}/.docker'.format(os.getenv('HOME'))
+                ))
+                if tlscacert:
+                    self.client_params['ca_certs'] = tlscacert
+                else:
+                    self.client_params['ca_certs'] = str(default_cert_path / 'ca.pem')
+
+                if tlscert:
+                    self.client_params['client_cert'] = tlscert
+                else:
+                    self.client_params['client_cert'] = str(default_cert_path / 'cert.pem')
+
+                if tlskey:
+                    self.client_params['client_key'] = tlskey
+                else:
+                    self.client_params['client_key'] = str(default_cert_path / 'key.pem')
+
+                self.config_client['tls'] = TLSConfig(
+                    client_cert=(self.client_params['client_cert'],
+                                    self.client_params['client_key']),
+                    ca_cert=self.client_params['ca_certs'],
+                    verify=use_tls
+                )
+            else:
+                self.base_url = 'http://{}:{}'.format(hostname, port)
+            self.config_client['version'] = version
+            self.config_client['base_url'] = self.base_url
+            self.client = docker.DockerClient(**self.config_client)
         self.num_containers = num_containers
         self.executor = ThreadPoolExecutor(self.num_containers)
-        self.client = docker.DockerClient(**self.config_client)
         self._streams = []
 
 

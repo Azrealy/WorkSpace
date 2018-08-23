@@ -21,11 +21,10 @@ class DockerEventObserver(rx.Observer):
         self.redis_client = redis_client
 
     def on_next(self, event):
+        #print(event)
         event = DockerEvent(event)
 
         if not event.event_type_is_container or event.action not in self.ACCEPTABLE_ACTIONS:
-            return
-        elif event.compose_project_name is None:
             return
 
         if event.action == 'create':
@@ -37,9 +36,7 @@ class DockerEventObserver(rx.Observer):
 
         payload = {
             'operation': operation,
-            'compose_project_name': event.compose_project_name,
             'container_id': event.container_id,
-            'index': event.compose_container_number
         }
         app_log.info('docker event payload: %s', payload)
 
