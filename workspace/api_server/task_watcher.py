@@ -17,7 +17,9 @@ class DockerEventObserver(rx.Observer):
 
     ACCEPTABLE_ACTIONS = ['create', 'start', 'die', 'destroy', 'health_status: healthy',
                           'health_status: unhealthy']
-    # todo __init__ redis_client
+    def __init__(self, redis_client):
+        self.redis_client = redis_client
+
     def on_next(self, event):
         event = DockerEvent(event)
 

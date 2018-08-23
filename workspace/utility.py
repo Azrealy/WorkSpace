@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sqlite3
 from tornado import gen
+from redis.client import Redis
 
 
 class RecordIsNotFoundError(Exception):
@@ -76,3 +77,21 @@ class SQLConnection(object, metaclass=Singleton):
         if autocommit:
             self.conn.commit()
         return cursor
+
+def create_redis_client(url, pool_size=10):
+    """
+    Creates connection pool for running Redis commands.
+
+    Parameters
+    ----------
+    url : str
+        A URL to connect to redis.
+    pool_size : int
+        Size of connection pool.
+
+    Returns
+    -------
+    client : redis.Redis
+        A client to run redis command.
+    """
+    return Redis.from_url(url, max_connections=pool_size)

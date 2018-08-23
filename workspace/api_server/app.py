@@ -8,6 +8,7 @@ from tornado.httpserver import HTTPServer
 from traitlets import Dict, Integer, Unicode, observe, Float, Bool
 from traitlets.config.application import catch_config_error, Application
 from .docker_client import DockerAPIClient
+from workspace.utility import create_redis_client
 
 
 class WebAPIServer(Application):
@@ -20,6 +21,7 @@ class WebAPIServer(Application):
     aliases = {
         'ip': 'WebAPIServer.ip',
         'port': 'WebAPIServer.port',
+        'redis-url': 'WebAPIServer.redis_url',
         'database_url': 'WebAPIServer.database_url',
         'docker-host': 'WebAPIServer.docker_host',
         'docker-tlscacert': 'WebAPIServer.docker_tlscacert',
@@ -129,6 +131,11 @@ class WebAPIServer(Application):
         help='The version of the API to use. Default: ``1.24``'
     )
 
+    redis_url = Unicode(
+        'redis://localhost:6379/0',
+        help='The url of the Redis'
+    ).tag(config=True)
+
     def init_logging(self):
         """
         Initializes logging.
@@ -143,7 +150,6 @@ class WebAPIServer(Application):
         logger.parent = self.log
         logger.setLevel(self.log.level)
 
-    @gen.coroutine
     def ini_docker_event(self):
         docker_client_ini = {
                 'host': self.docker_host,
@@ -152,8 +158,9 @@ class WebAPIServer(Application):
                 'tlscert': self.docker_tlscert,
                 'tlskey': self.docker_tlskey
             }
+        redis_client = create_redis_client(self.redis_url)
         container = DockerAPIClient(1, str(self.docker_api_version), **docker_client_ini)
-        container.running_observable()
+        container.running_observable(redis_client)
 
     def init_webapp(self):
         """

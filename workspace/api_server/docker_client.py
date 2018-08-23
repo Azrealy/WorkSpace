@@ -104,12 +104,13 @@ class DockerAPIClient(object):
 
 
     @run_on_executor
-    def running_observable(self):
+    def running_observable(self, redis_client):
         """
         Run the observable of docker event
         """
         docker_events = self.client.events()
-        docker_events_observable(docker_events).subscribe(DockerEventObserver())
+        observable = docker_events_observable(docker_events)
+        observable.subscribe(DockerEventObserver(redis_client))
         
 
     def close(self):
