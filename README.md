@@ -45,8 +45,8 @@ Using redis to connect the `ContainerHandle` class, `EventManager` class and `Co
 
 # Container status
 
- Inspect to container attributes the states have `status` and `health` key. what will represent the different states of container.
-
+Inspect the Container attributes that we will find the container states of tranformation parrten like blow.
+The key of status `health` is seted at the docker-compose file, use `curl` cmd to check extra jupyter network connection status of container.
  * `docker run` from `{status: running, health: starting}` to `{status: running, health: healthy}`.
 
  * `docker delete` from `{status: exited, health: healthy}` to None.
@@ -76,7 +76,9 @@ from notebook.auth import passwd
 passwd()
 ```
 # Todo
-* Implement api server for execute CRUD `todo` and `container` object.
-* Implement Docker file use to build jupyter container.
+* <s>Implement api server for execute CRUD `todo` and `container` object.</s>
+* <s>Implement container orchestrator server for create/delete/update container.</s>
+* <s>Create Dockerfile for building jupyter image.</s>
+* <s>Create docker-compose.yml for building cluster jupyter images.</s>
 * Implement WorkSpace front end UI for CREUD `todo` object.
 * Implement WorkSpace front end UI for Create/Delete `jupyter` container.
