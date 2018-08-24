@@ -3,6 +3,9 @@ from rx import Observable
 import rx
 from .event import DockerEvent
 from tornado.log import app_log
+from tornado.escape import json_encode
+from .event_manager import EventManager
+
 
 def docker_events_observable(events):
 
@@ -37,8 +40,10 @@ class DockerEventObserver(rx.Observer):
         payload = {
             'operation': operation,
             'container_id': event.container_id,
+            'container_name': event.name
         }
-        app_log.info('docker event payload: %s', payload)
+        app_log.info('docker event payload has stored in redis: %s', payload)
+        self.redis_client.rpush(EventManager.QUEUE_KEY, json_encode(payload))
 
     def on_error(self, error):
 

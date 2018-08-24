@@ -21,7 +21,8 @@ setup(
     tests_require=['pytest', 'pytest-tornado'],
     entry_points={
         'console_scripts': [
-            'webapi_server = workspace.api_server.app:main'
+            'webapi_server = workspace.api_server.api_server:main',
+            'orchestrator_server = workspace.api_server.container_orchestrator:main'
         ]
     }
 )

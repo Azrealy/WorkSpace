@@ -2,42 +2,39 @@
 import signal
 import logging
 from tornado.log import LogFormatter, app_log, access_log, gen_log
-from tornado import web, ioloop, gen
+from tornado import web, ioloop, gen, autoreload
 from workspace.api_server.handlers.todo import TodoListHandler, TodoInfoHandler
 from tornado.httpserver import HTTPServer
 from traitlets import Dict, Integer, Unicode, observe, Float, Bool
 from traitlets.config.application import catch_config_error, Application
-from .docker_client import DockerAPIClient
+from .docker_orchestrator.docker_client import DockerAPIClient
 from workspace.utility import create_redis_client
+from .docker_orchestrator.event_manager import EventManager
+from workspace.model.fields.container import Container
+from .docker_orchestrator.container_manager import ContainerManager
 
 
-class WebAPIServer(Application):
+class OrchestratorServer(Application):
     """
-    The main application of WebAPI Server.
+    The main application of Orchestrator Server.
     """
-    name = 'webapi_server'
-    description = 'WebAPI Server'
+    name = 'orchestrator_server'
+    description = 'Orchestrator Server'
 
     aliases = {
-        'ip': 'WebAPIServer.ip',
-        'port': 'WebAPIServer.port',
-        'redis-url': 'WebAPIServer.redis_url',
-        'database_url': 'WebAPIServer.database_url',
-        'docker-host': 'WebAPIServer.docker_host',
-        'docker-tlscacert': 'WebAPIServer.docker_tlscacert',
-        'docker-tlscert': 'WebAPIServer.docker_tlscert',
-        'docker-tlskey': 'WebAPIServer.docker_tlskey',
-        'docker-from-env': 'WebAPIServer.docker_from_env',
-        'docker-api-version': 'WebAPIServer.docker_api_version',
+        'redis-url': 'OrchestratorServer.redis_url',
+        'database_url': 'OrchestratorServer.database_url',
+        'docker-host': 'OrchestratorServer.docker_host',
+        'docker-tlscacert': 'OrchestratorServer.docker_tlscacert',
+        'docker-tlscert': 'OrchestratorServer.docker_tlscert',
+        'docker-tlskey': 'OrchestratorServer.docker_tlskey',
+        'docker-from-env': 'OrchestratorServer.docker_from_env',
+        'docker-api-version': 'OrchestratorServer.docker_api_version',
     }
 
     database_url = Unicode(
         '', config=True,
         help='The database url.'
-    )
-    ip = Unicode(
-        '', config=True,
-        help='The IP address the server will listen on.'
     )
 
 
@@ -84,23 +81,6 @@ class WebAPIServer(Application):
         return (u'%(color)s[%(levelname)1.1s %(asctime)s.%(msecs).03d '
                 u'%(name)s]%(end_color)s %(message)s')
 
-    @observe('ip')
-    def _handle_ip_changed(self, change):
-        """
-        Handles change notification of `ip` option.
-
-        Parameters
-        ----------
-        change : dict{str: str}
-            Information about the change of `ip` option.
-        """
-        if change['new'] == u'*':
-            self.ip = u''
-
-    port = Integer(
-        8889, config=True,
-        help='The port the server will listen on.'
-    )
 
     docker_host = Unicode(
         '', config=True,
@@ -156,8 +136,8 @@ class WebAPIServer(Application):
         logger.parent = self.log
         logger.setLevel(self.log.level)
 
-    def ini_docker_event(self):
-        print(self.docker_from_env)
+        
+    def ini_orchestrator_server(self):
         docker_client_ini = {
                 'from_env': self.docker_from_env,
                 'host': self.docker_host,
@@ -166,33 +146,21 @@ class WebAPIServer(Application):
                 'tlscert': self.docker_tlscert,
                 'tlskey': self.docker_tlskey
             }
-        redis_client = create_redis_client(self.redis_url)
-        container = DockerAPIClient(1, str(self.docker_api_version), **docker_client_ini)
-        container.running_observable(redis_client)
-
-    def init_webapp(self):
-        """
-        Initializes Web Application to launch WebAPI Server.
-        """
-        self.web_app = WebAPIApp(
-            self.database_url,
-        )
-        self.http_server = HTTPServer(self.web_app)
-        self.http_server.listen(self.port)
+        docker_client = DockerAPIClient(1, str(self.docker_api_version), **docker_client_ini)
+        ContainerOrchestratorApp(self.redis_url, docker_client)
 
     @catch_config_error
     def initialize(self, argv=None):
         """
-        Initializes the main application of WebAPI Server.
+        Initializes the main application of Orchestrator Server.
         """
         super().initialize(argv)
-        self.ini_docker_event()
-        self.init_webapp()
+        self.ini_orchestrator_server()
         self.init_logging()
 
     def start(self):
         """
-        Starts the WebAPI Server.
+        Starts the Orchestrator Server.
         """
         super().start()
 
@@ -200,43 +168,55 @@ class WebAPIServer(Application):
 
         self.io_loop = ioloop.IOLoop.current()
         try:
-            self.log.info('WebAPI Server starting...')
+            self.log.info('Orchestrator Server starting...')
             self.io_loop.start()
         except KeyboardInterrupt:
-            self.log.info('WebAPI Server interrupted...')
+            self.log.info('Orchestrator Server interrupted...')
 
     def stop(self):
         """
-        Stops the WebAPI Server.
+        Stops the Orchestrator Server.
         """
         def _stop():
             self.http_server.stop()
             self.io_loop.stop()
-            self.log.info("Stopped WebAPI Server.")
+            self.log.info("Stopped Orchestrator Server.")
 
         self.io_loop.add_callback(_stop)
 
     def handle_sigterm(self, sig, frame):
         """
-        Handles `SIGTERM` signal to stop the WebAPI Server
+        Handles `SIGTERM` signal to stop the Orchestrator Server
         gracefully.
         """
-        self.log.info("received SIGTERM. Stopping WebAPI Server...")
+        self.log.info("received SIGTERM. Stopping Orchestrator Server...")
         self.io_loop.add_callback_from_signal(self.stop)
 
-class WebAPIApp(web.Application):
-    
-    def __init__(self, database_url):
-    
-        context = {
-            'database_url': database_url
-        }
+class ContainerOrchestratorApp(object):
+    """
+    Job Server Application for AACluster Orchestrator
+    """
+    def __init__(self, redis_url, docker_client):
+        """
+        Initializes AAClusterOrchestratorApp.
 
-        handlers = [
-            (r'/todo/([^/]*)', TodoInfoHandler, context),
-            (r'/todo', TodoListHandler, context)
-        ]
+        Parameters
+        ----------
+        redis_url : str
+            The url of the Redis.
+        docker_client : str
+            The docker client of docker deamon
+        """
+        Container.drop_table()
+        Container.create_table()
+        redis_client = create_redis_client(redis_url)
+        event_manager = EventManager(redis_client, docker_client)
+        container_manager = ContainerManager(redis_client, docker_client)
 
-        super().__init__(handlers)
+        ioloop.IOLoop.current().spawn_callback(event_manager.watch_queue)
+        ioloop.IOLoop.current().spawn_callback(container_manager.watch_queue)
+        docker_client.running_observable(redis_client)
 
-main = launch_new_instance = WebAPIServer.launch_instance
+
+
+main = launch_new_instance = OrchestratorServer.launch_instance

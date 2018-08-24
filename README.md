@@ -41,7 +41,17 @@ Using this `curl_tests/<bash.sh>` to check the server response.
 * `EventManager` class for listen the event stream from `docker event` cmd, depends those events status to update container object.
 * `ContainerHandle` class for handle the request of create/remove container request and response a container object to webUI. 
 
-Using redis to connect the `ContainerHandle` class, `EventManager` class and `ContainerManager` class. Browser send a request of create container, `ContainerHandle` receive this request and store as a dict of `operation_type: CREATE` and `container_name: <NAME>` to the redis queue. `ContainerManager` will inherit `TaskWatcher` class to listen redis queue, when the dict stored by the `ContainerHandle` in the queue, take out this dict from queue and depending the `operation_type` to execute `docker` cmd.  
+Using redis to connect the `ContainerHandle` class, `EventManager` class and `ContainerManager` class. Browser send a request of create container, `ContainerHandle` receive this request and store as a dict of `operation_type: CREATE` and `container_name: <NAME>` to the redis queue. `ContainerManager` will inherit `TaskWatcher` class to listen redis queue, when the dict stored by the `ContainerHandle` in the queue, take out this dict from queue and depending the `operation_type` to execute `docker` cmd.
+
+# Container status
+
+ Inspect to container attributes the states have `status` and `health` key. what will represent the different states of container.
+
+ * `docker run` from `{status: running, health: starting}` to `{status: running, health: healthy}`.
+
+ * `docker delete` from `{status: exited, health: healthy}` to None.
+
+TODO memo: As use the sqlites library, when I implement DB CRUD, the processing will block and wait for the result, If the exception arise, `JobRunner` will keep running but the job after the exception will blocking. 
 
 # Build docker image
 Use the following command to build jupyter image base on the `Dockerfile`.

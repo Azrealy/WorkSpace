@@ -8,7 +8,7 @@ import time
 class TodoListHandler(web.RequestHandler):
 
 
-    def initialize(self, database_url):
+    def initialize(self, database_url, **kwargs):
         """
         Initializes BaseRequestHandler.
         """
@@ -18,7 +18,7 @@ class TodoListHandler(web.RequestHandler):
         """
         GET /todo
         """
-        self.write(self._database_url)
+        #self.write(self._database_url)
         result = Todo.find_all()
         if result:
             self.write({'todos': [t for t in result]})
@@ -37,7 +37,7 @@ class TodoListHandler(web.RequestHandler):
 
 class TodoInfoHandler(web.RequestHandler):
 
-    def initialize(self, database_url):
+    def initialize(self, database_url, **kwargs):
         """
         Initializes BaseRequestHandler.
         """

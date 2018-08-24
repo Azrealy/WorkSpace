@@ -58,7 +58,6 @@ class DockerAPIClient(object):
             variable and `/.docker` is used if DOCKER_CERT_PATH does
             not exist).
         """
-        print(from_env)
         if from_env:
             self.client = docker.from_env()
         else:
@@ -116,6 +115,12 @@ class DockerAPIClient(object):
         observable = docker_events_observable(docker_events)
         observable.subscribe(DockerEventObserver(redis_client))
         
+    def inspect_container(self, container_id):
+        """
+        Inspect container status
+        """
+        container = self.client.containers.get(container_id)
+        return container
 
     def close(self):
         """
