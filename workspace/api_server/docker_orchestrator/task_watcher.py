@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from rx import Observable
 import rx
+from tornado import gen
 from .event import DockerEvent
 from tornado.log import app_log
 from tornado.escape import json_encode
@@ -18,21 +19,20 @@ def docker_events_observable(events):
 
 class DockerEventObserver(rx.Observer):
 
-    ACCEPTABLE_ACTIONS = ['create', 'start', 'die', 'destroy', 'health_status: healthy',
+    ACCEPTABLE_ACTIONS = ['create', 'start', 'die', 'health_status: healthy',
                           'health_status: unhealthy']
     def __init__(self, redis_client):
         self.redis_client = redis_client
 
+    @gen.coroutine
     def on_next(self, event):
-        #print(event)
         event = DockerEvent(event)
-
         if not event.event_type_is_container or event.action not in self.ACCEPTABLE_ACTIONS:
             return
 
         if event.action == 'create':
             operation = 'create_instance'
-        elif event.action == 'destroy':
+        elif event.action == 'die':
             operation = 'delete_instance'
         else:
             operation = 'update_instance_status'

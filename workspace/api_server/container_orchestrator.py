@@ -24,6 +24,8 @@ class OrchestratorServer(Application):
     aliases = {
         'redis-url': 'OrchestratorServer.redis_url',
         'database_url': 'OrchestratorServer.database_url',
+        'jupyter-token': 'OrchestratorServer.jupyter_token',
+        'jupyter-port': 'OrchestratorServer.jupyter_port',
         'docker-host': 'OrchestratorServer.docker_host',
         'docker-tlscacert': 'OrchestratorServer.docker_tlscacert',
         'docker-tlscert': 'OrchestratorServer.docker_tlscert',
@@ -81,6 +83,15 @@ class OrchestratorServer(Application):
         return (u'%(color)s[%(levelname)1.1s %(asctime)s.%(msecs).03d '
                 u'%(name)s]%(end_color)s %(message)s')
 
+    jupyter_token = Unicode(
+        'c8de56fa4deed24899803e93c227592aef6538f93025fe01', config=True,
+        help='jupyter token use to access'
+    )
+
+    jupyter_port = Unicode(
+        '8892', config=True,
+        help='The port the jupyter container to access.'
+    )
 
     docker_host = Unicode(
         '', config=True,
@@ -146,8 +157,8 @@ class OrchestratorServer(Application):
                 'tlscert': self.docker_tlscert,
                 'tlskey': self.docker_tlskey
             }
-        docker_client = DockerAPIClient(1, str(self.docker_api_version), **docker_client_ini)
-        ContainerOrchestratorApp(self.redis_url, docker_client)
+        docker_client = DockerAPIClient(3, str(self.docker_api_version), **docker_client_ini)
+        ContainerOrchestratorApp(self.redis_url, docker_client, self.jupyter_token, self.jupyter_port)
 
     @catch_config_error
     def initialize(self, argv=None):
@@ -178,7 +189,6 @@ class OrchestratorServer(Application):
         Stops the Orchestrator Server.
         """
         def _stop():
-            self.http_server.stop()
             self.io_loop.stop()
             self.log.info("Stopped Orchestrator Server.")
 
@@ -196,7 +206,7 @@ class ContainerOrchestratorApp(object):
     """
     Job Server Application for AACluster Orchestrator
     """
-    def __init__(self, redis_url, docker_client):
+    def __init__(self, redis_url, docker_client, jupyter_token, jupyter_port):
         """
         Initializes AAClusterOrchestratorApp.
 
@@ -210,12 +220,13 @@ class ContainerOrchestratorApp(object):
         Container.drop_table()
         Container.create_table()
         redis_client = create_redis_client(redis_url)
-        event_manager = EventManager(redis_client, docker_client)
-        container_manager = ContainerManager(redis_client, docker_client)
-
+        event_manager = EventManager(
+            redis_client, docker_client, jupyter_token, jupyter_port)
+        container_manager = ContainerManager(
+            redis_client, docker_client, jupyter_token, jupyter_port)
+        docker_client.running_observable(redis_client)
         ioloop.IOLoop.current().spawn_callback(event_manager.watch_queue)
         ioloop.IOLoop.current().spawn_callback(container_manager.watch_queue)
-        docker_client.running_observable(redis_client)
 
 
 

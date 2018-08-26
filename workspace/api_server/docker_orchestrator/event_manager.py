@@ -121,7 +121,7 @@ class EventManager(JobRunner):
     """
     QUEUE_KEY = 'workspace:job-queue:even-manager'
 
-    def __init__(self, redis_client, docker_client):
+    def __init__(self, redis_client, docker_client, jupyter_token, jupyter_port):
         """
         Initializes AAClusterStateUpdater
 
@@ -135,6 +135,8 @@ class EventManager(JobRunner):
         """
         super().__init__(redis_client)
         self._docker_client = docker_client
+        self._token = jupyter_token
+        self._port = jupyter_port
 
     @gen.coroutine
     def run_job(self, job):
@@ -149,11 +151,12 @@ class EventManager(JobRunner):
         """
         operation_type = job['operation']
         container_id = job['container_id']
+        container_name = job['container_name']
 
         app_log.info('start run job: %s', operation_type)
 
         if operation_type == 'create_instance':
-            self.create_container(container_id)
+            self.create_container(container_id, container_name)
         elif operation_type == 'update_instance_status':
             self.update_container(container_id)
         elif operation_type == 'delete_instance':
@@ -164,10 +167,13 @@ class EventManager(JobRunner):
         app_log.info('end run job: %s', operation_type)
 
     
-    def create_container(self, container_id):
+    def create_container(self, container_id, container_name):
         result = Container(
             container_id=container_id,
-            status='creating'
+            status='creating',
+            container_name=container_name,
+            jupyter_token=self._token,
+            jupyter_url='http://localhost:{}'.format(self._port)
         ).save()
         app_log.info('container has created : %s', result)
 

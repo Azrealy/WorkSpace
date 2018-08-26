@@ -1,27 +1,19 @@
-version: '2.1'
-
+version: '3.4'
 services:
-  jupyter-notebook:
-    image: jupyter/base-notebook:latest
-    hostname: jupyter-notebook
-    environment:
-      NB_USER: docker_worker
-      NB_UID: 1008
-      NB_GID: 1011
-      CHOWN_HOME: 'yes'
-      CHOWN_HOME_OPTS: -R
-    volumes:
-      - ${LOCAL_WORKING_DIR}:/home/jovyan/work
-      - ${LOCAL_DATASETS}:/home/jovyan/work/datasets
-      #- ${LOCAL_SSL_CERTS}:/etc/ssl/notebook
-    working_dir: /home/jupyter
-    ports:
-      - "8888" # Notebook Server
-    healthcheck:
-      test: "curl -f -I -L -X GET http://localhost:8888 || exit 1"
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    command: "start-notebook.sh \
-        --NotebookApp.password=${ACCESS_TOKEN}"
-        #--NotebookApp.certfile=/etc/ssl/notebook/jupyter.pem
+    jupyter-notebook:
+        build:
+          context: .
+          dockerfile: Dockerfile
+          args:
+            JUPYTER_TOKEN: '${CONTAINER_TOKEN}'
+        volumes:
+            - /tmp/jupyter_test_dir:/home/jupyter 
+        ports:
+            - ${CONTAINER_PORT}:8888
+        container_name: ${CONTAINER_NAME}
+        command: "--allow-root"
+        healthcheck:
+          test: "exit 0"
+          interval: 4s
+          timeout: 5s
+          retries: 1

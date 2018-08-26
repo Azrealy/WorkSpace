@@ -28,8 +28,9 @@ RUN pip3 install --upgrade jupyterthemes
 # jupyter generate a config file
 RUN jupyter notebook --generate-config
 
+ARG JUPYTER_TOKEN
 # Over write the password config by password basing sha1
-RUN echo "c.NotebookApp.password='sha1:**'">>/root/.jupyter/jupyter_notebook_config.py
+RUN echo "c.NotebookApp.token='${JUPYTER_TOKEN}'">>/root/.jupyter/jupyter_notebook_config.py
 
 # Start the jupyter notebook
 ENTRYPOINT ["jupyter", "notebook", "--ip=*"]

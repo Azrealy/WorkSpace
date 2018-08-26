@@ -114,6 +114,8 @@ class DockerAPIClient(object):
         docker_events = self.client.events()
         observable = docker_events_observable(docker_events)
         observable.subscribe(DockerEventObserver(redis_client))
+
+
         
     def inspect_container(self, container_id):
         """
