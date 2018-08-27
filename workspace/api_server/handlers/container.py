@@ -26,7 +26,7 @@ class ContainerHandler(web.RequestHandler):
             self.write({'containers': [t for t in result]})
             app_log.info('get todo succeeded : %s', result)
         else:
-            raise web.HTTPError(400, 'No Container exist.')
+            self.write({'containers': [t for t in result]})
     
     def post(self):
         """

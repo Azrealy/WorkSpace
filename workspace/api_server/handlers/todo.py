@@ -21,10 +21,11 @@ class TodoListHandler(web.RequestHandler):
         #self.write(self._database_url)
         result = Todo.find_all()
         if result:
-            self.write({'todos': [t for t in result]})
+            self.write(
+                {'todos': list(map(lambda f: self.transform_created_time(f), result))})
             app_log.info('get todo succeeded : %s', result)
         else:
-            raise web.HTTPError(400, 'No task exist.')
+            self.write({'todos': None})
     
     def post(self):
         """
@@ -32,8 +33,18 @@ class TodoListHandler(web.RequestHandler):
         """
         req_data = escape.json_decode(self.request.body)
         text = req_data.get('text')
-        result = Todo(text=text, id=generate_next_id()).save()
+        result = Todo(text=text, id=generate_next_id(), created_at=time.time()).save()
         self.write({'hasCreated': result})
+    
+    def transform_created_time(self, todo):
+        """
+        Transform created time to string
+        """
+        todo.created_at = convert_time_to_message(todo.created_at)
+        if todo.update_at != '':
+            todo.update_at = convert_time_to_message(todo.update_at)
+        return todo
+
 
 class TodoInfoHandler(web.RequestHandler):
 
@@ -58,6 +69,7 @@ class TodoInfoHandler(web.RequestHandler):
         """
         result = Todo(id=todo_id).remove()
         self.write({'hasDeleted': result})
+        
 
 def generate_next_id():
     """
