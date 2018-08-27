@@ -1,0 +1,14 @@
+[ignore]
+<PROJECT_ROOT>/node_modules/stylefmt
+<PROJECT_ROOT>/node_modules/stylelint
+<PROJECT_ROOT>/node_modules/lunr/test/fixtures
+
+[include]
+
+[libs]
+./src/types.js
+
+[options]
+# workaround for errors on importing CSS
+# https://github.com/facebook/flow/issues/2092
+module.name_mapper='.*\.css$' -> './helpers/CSSModule'

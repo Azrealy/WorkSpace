@@ -19,7 +19,7 @@ def docker_events_observable(events):
 
 class DockerEventObserver(rx.Observer):
 
-    ACCEPTABLE_ACTIONS = ['create', 'start', 'die', 'health_status: healthy',
+    ACCEPTABLE_ACTIONS = ['create', 'start', 'die', 'destroy', 'health_status: healthy',
                           'health_status: unhealthy']
     def __init__(self, redis_client):
         self.redis_client = redis_client
@@ -32,7 +32,7 @@ class DockerEventObserver(rx.Observer):
 
         if event.action == 'create':
             operation = 'create_instance'
-        elif event.action == 'die':
+        elif event.action == 'destroy':
             operation = 'delete_instance'
         else:
             operation = 'update_instance_status'
