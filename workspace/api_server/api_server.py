@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import signal
 import logging
+from workspace.model.fields.todo import Todo
 from tornado.log import LogFormatter, app_log, access_log, gen_log
 from tornado import web, ioloop, gen
 from workspace.api_server.handlers.todo import TodoListHandler, TodoInfoHandler
+from workspace.api_server.handlers.comment import CommentInfoHandler
 from workspace.api_server.handlers.container import ContainerHandler
 from tornado.httpserver import HTTPServer
 from traitlets import Dict, Integer, Unicode, observe, Float, Bool
@@ -172,7 +174,8 @@ class WebAPIServer(Application):
 class WebAPIApp(web.Application):
     
     def __init__(self, database_url, redis_url):
-    
+
+        Todo.create_table()
         context = {
             'database_url': database_url,
             'redis_url': redis_url
@@ -180,6 +183,7 @@ class WebAPIApp(web.Application):
 
         handlers = [
             (r'/todo/([^/]*)', TodoInfoHandler, context),
+            (r'/comment/([^/]*)', CommentInfoHandler, context),
             (r'/todo', TodoListHandler, context),
             (r'/container', ContainerHandler, context)
         ]
