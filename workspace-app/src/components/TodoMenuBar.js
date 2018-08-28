@@ -34,16 +34,21 @@ class TodoMenuBar extends React.Component<Props, State> {
 	}
 	render() {
 		return (
+		<div>
 			<Form>
-				<Form.Input
-					name="todo-input"
-					disabled={this.props.isCreating}
-					autoFocus
-					error={this.props.errorMessage}
-					onChange={(e: Event, d: Object) => this.handleInputTodoInfo(e, d)}
-				/>
-				<Form.Button content='Submit' onClick={event => this.handleCreate(event)}/>
+				<Form.Group>
+					<Form.Input
+						name="todo-input"
+						disabled={this.props.isCreating}
+						autoFocus
+						width={12}
+						error={this.props.errorMessage}
+						onChange={(e: Event, d: Object) => this.handleInputTodoInfo(e, d)}
+					/>
+					<Form.Button content='Submit' onClick={event => this.handleCreate(event)}/>
+				</Form.Group>
 			</Form>
+		</div>
 		)
 	}
 }

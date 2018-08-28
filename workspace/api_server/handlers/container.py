@@ -26,7 +26,7 @@ class ContainerHandler(web.RequestHandler):
             self.write({'containers': [t for t in result]})
             app_log.info('get todo succeeded : %s', result)
         else:
-            self.write({'containers': [t for t in result]})
+            self.write({'containers': None})
     
     def post(self):
         """

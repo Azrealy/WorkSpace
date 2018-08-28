@@ -21,8 +21,7 @@ class TodoListHandler(web.RequestHandler):
         #self.write(self._database_url)
         result = Todo.find_all()
         if result:
-            self.write(
-                {'todos': list(map(lambda f: self.transform_created_time(f), result))})
+            self.write(dict(todos=list(map(lambda f: self.transform_created_time(f), result))))
             app_log.info('get todo succeeded : %s', result)
         else:
             self.write({'todos': None})
@@ -41,7 +40,7 @@ class TodoListHandler(web.RequestHandler):
         Transform created time to string
         """
         todo.created_at = convert_time_to_message(todo.created_at)
-        if todo.update_at != '':
+        if todo.update_at != 0:
             todo.update_at = convert_time_to_message(todo.update_at)
         return todo
 

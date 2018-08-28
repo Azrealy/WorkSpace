@@ -22,8 +22,9 @@ class CommentInfoHandler(web.RequestHandler):
         """
         req_data = escape.json_decode(self.request.body)
         comment = req_data.get('comment')
-        response = json.loads(requests.post("https://apis.paralleldots.com/v3/sentiment", data={
-            "api_key": "******", "text": comment, "lang_code": "en"}).text)
+        response = json.loads(
+            requests.post("https://apis.paralleldots.com/v3/sentiment", verify=False, #Give up the ssl protocol
+            data={"api_key": "LLzFyEAbBiAwBQs1YKKUsS4zV9MZ9QPw6zUWKsmaN6U", "text": comment, "lang_code": "en"}).text)
         sentiment = response['sentiment']
         result = Todo(id=todo_id, comment=comment, sentiment=sentiment, update_at=time.time()).update()
         if result:

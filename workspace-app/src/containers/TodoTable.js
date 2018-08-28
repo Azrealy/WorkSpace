@@ -1,52 +1,70 @@
 // @flow
-import React from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { ApiTodoInfoFetch } from '../ducks/api_todo'
+import TodoTableComponent from '../components/TodoTable'
 import {
 	completeTodoButton,
 	updateTodoButton,
-	deleteTOdoButton
+	deleteTodoButton
 } from '../ducks/api_todo'
+import { fetchApiTodoList, initializeApiTodoFetch} from '../ducks/api_todo'
 
 type Props = {
-	todos: Array,
+	apiTodos: Array,
 	deleteTodo: Function,
 	completeTodo: Function,
-	updateTodo: Function
+	updateTodo: Function,
+	fetchTodoList: Function,
+	initialize: Function
 }
 
-const TodoTable = (props: Props) => {
-	<TodoComponent
-		todos={props.apiTodos}
-		deleteTOdoButton={props.deleteTodo}
-		completeTodoButton={props.completeTodo}
-		updateTodoButton={props.updateTodo}
-	/>
+class TodoTable extends React.PureComponent<Props> {
+	componentDidMount() {
+		this.props.initialize()
+		this.props.fetchTodoList()
+	}
+	render() {
+		return (
+				<TodoTableComponent
+					todos={this.props.apiTodos}
+					deleteTodo={this.props.deleteTodoButton}
+					completeTodo={this.props.completeTodoButton}
+					updateTodo={this.props.updateTodoButton}
+				/>
+		)
+	}
 }
 
 const mapStateToProps = (state: { apiTodoListInfo: ApiTodoInfoFetch }) => ({
-	todos: state.apiTodos
+	apiTodos: state.apiTodoListInfo.apiTodos
 })
 
 const mapDipatchToProps = (dispatch: Dispatch) => ({
 	deleteTodo(deleteTodoId: string) {
-		dispatch(deleteTOdoButton(deleteTodoId))
+		dispatch(deleteTodoButton(deleteTodoId))
 	},
 	completeTodo(completeTodoId: string) {
 		dispatch(completeTodoButton(completeTodoId))
 	},
 	updateTodo(updateTodoId: string, updateText: string) {
 		dispatch(updateTodoButton(updateTodoId, updateText))
+	},
+	fetchTodoList() {
+		dispatch(fetchApiTodoList())
+	},
+  initialize() {
+		dispatch(initializeApiTodoFetch())
 	}
-
 })
 
 TodoTable.propTypes = {
-  todos: PropTypes.array.isRequired,
+  apiTodos: PropTypes.array.isRequired,
   deleteTodo: PropTypes.func.isRequired,
   completeTodo: PropTypes.func.isRequired,
-  updateTodo: PropTypes.func.isRequired,
+	updateTodo: PropTypes.func.isRequired,
+	fetchTodoList: PropTypes.func.isRequired
 }
 
 

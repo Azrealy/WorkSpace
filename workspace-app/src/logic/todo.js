@@ -21,7 +21,7 @@ export const fetchApiTodoListLogic = createLogic({
 
   processOptions: {
     dispatchReturn: true,
-    successType: ({ apiTodos }) => fetchApiTodoListSucceed(apiTodos),
+    successType: fetchApiTodoListSucceed,
     failType: fetchApiTodoListFailed
   },
 

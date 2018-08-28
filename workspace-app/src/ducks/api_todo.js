@@ -19,7 +19,9 @@ type ApiTodoType = {
   todoId: string,
   text: string,
   isCompleted: boolean,
+  comment: string,
   createdAt: string,
+  sentiment: string,
   updateAt?: string
 }
 
@@ -50,11 +52,11 @@ export const apiTodosFetchReducer = createReducer(
       }),
     [FETCH_API_TODO_LIST_SUCCEED]: (
       state: ApiTodoInfoFetch,
-      { payload: { apiTodos } }
+      { payload: { todos } }
     ): ApiTodoInfoFetch =>
       R.merge(state, {
         isFetching: false,
-        apiTodos
+        apiTodos: todos
       }),
     [FETCH_API_TODO_LIST_FAILED]: (
       state: ApiTodoInfoFetch,
@@ -115,10 +117,10 @@ export function fetchApiTodoList(): Action {
   return { type: FETCH_API_TODO_LIST }
 }
 
-export function fetchApiTodoListSucceed(apiTodos: Array<ApiTodoType>): Action {
+export function fetchApiTodoListSucceed(payload: { todos: Array<ApiTodoType>}): Action {
   return {
     type: FETCH_API_TODO_LIST_SUCCEED,
-    payload: { apiTodos }
+    payload
   }
 }
 
