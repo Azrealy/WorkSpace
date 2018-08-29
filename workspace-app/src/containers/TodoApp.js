@@ -11,7 +11,7 @@ class TodoApp extends React.PureComponent<Props> {
 		return (
 				<Container className="main-todoApp">
 					<TodoMenuBar/>
-					<Divider />
+					<Divider/>
 					<TodoTable/>
 				</Container>
 		)
