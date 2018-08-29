@@ -21,6 +21,10 @@ class TodoMenuBar extends React.PureComponent<Props> {
 		this.props.initialize()
 	}
 
+	componentWillUnmount() {
+		this.props.initialize()
+	}
+
 	render() {
 		return (
 			<TodoMenuBarComponent

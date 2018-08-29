@@ -12,9 +12,8 @@ import {
 import { fetchApiTodoList, initializeApiTodoFetch} from '../ducks/api_todo'
 
 type Props = {
-	apiTodos: Array,
+	apiTodos?: Array,
 	deleteTodo: Function,
-	completeTodo: Function,
 	updateTodo: Function,
 	fetchTodoList: Function,
 	initialize: Function
@@ -29,9 +28,8 @@ class TodoTable extends React.PureComponent<Props> {
 		return (
 				<TodoTableComponent
 					todos={this.props.apiTodos}
-					deleteTodo={this.props.deleteTodoButton}
-					completeTodo={this.props.completeTodoButton}
-					updateTodo={this.props.updateTodoButton}
+					deleteTodo={this.props.deleteTodo}
+					updateTodo={this.props.updateTodo}
 				/>
 		)
 	}
@@ -42,14 +40,11 @@ const mapStateToProps = (state: { apiTodoListInfo: ApiTodoInfoFetch }) => ({
 })
 
 const mapDipatchToProps = (dispatch: Dispatch) => ({
-	deleteTodo(deleteTodoId: string) {
+	deleteTodo(deleteTodoId: number) {
 		dispatch(deleteTodoButton(deleteTodoId))
 	},
-	completeTodo(completeTodoId: string) {
-		dispatch(completeTodoButton(completeTodoId))
-	},
-	updateTodo(updateTodoId: string, updateText: string) {
-		dispatch(updateTodoButton(updateTodoId, updateText))
+	updateTodo(updateTodoId: number, updateText: string, isCompleted: boolean) {
+		dispatch(updateTodoButton(updateTodoId, updateText, isCompleted))
 	},
 	fetchTodoList() {
 		dispatch(fetchApiTodoList())
@@ -60,9 +55,8 @@ const mapDipatchToProps = (dispatch: Dispatch) => ({
 })
 
 TodoTable.propTypes = {
-  apiTodos: PropTypes.array.isRequired,
+  apiTodos: PropTypes.array,
   deleteTodo: PropTypes.func.isRequired,
-  completeTodo: PropTypes.func.isRequired,
 	updateTodo: PropTypes.func.isRequired,
 	fetchTodoList: PropTypes.func.isRequired
 }

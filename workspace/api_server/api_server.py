@@ -174,6 +174,7 @@ class WebAPIServer(Application):
 class WebAPIApp(web.Application):
     
     def __init__(self, database_url, redis_url):
+        Todo.drop_table()
         Todo.create_table()
         context = {
             'database_url': database_url,

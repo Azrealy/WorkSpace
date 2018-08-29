@@ -1,7 +1,8 @@
 // @flow
 import React from 'react'
-import { Form } from 'semantic-ui-react'
+import { Form, Message } from 'semantic-ui-react'
 import PropTypes from 'prop-types'
+import './Todo.css';
 
 
 type Props = {
@@ -25,29 +26,44 @@ class TodoMenuBar extends React.Component<Props, State> {
 
 	handleCreate(event: Event) {
     event.preventDefault()
-    this.props.createTodoButton(this.state.todoText)
+		this.props.createTodoButton(this.state.todoText)
   }
 
 	handleInputTodoInfo = (event: Event, data: Object) => {
 		event.preventDefault()
 		this.setState({todoText: data.value})
 	}
+
+	renderErrorMessage = () => {
+	
+		if (this.props.errorMessage !== '') {
+			return (
+				<Message error>
+					<Message.Header>
+						There was some errors with your server or requests
+					</Message.Header>
+					<p>{this.props.errorMessage}</p>
+				</Message>
+			)
+		}
+	}
 	render() {
 		return (
 		<div>
-			<Form>
+			<Form className="todoApp">
 				<Form.Group>
 					<Form.Input
 						name="todo-input"
 						disabled={this.props.isCreating}
 						autoFocus
-						width={12}
+						width={15}
 						error={this.props.errorMessage}
 						onChange={(e: Event, d: Object) => this.handleInputTodoInfo(e, d)}
 					/>
 					<Form.Button content='Submit' onClick={event => this.handleCreate(event)}/>
 				</Form.Group>
 			</Form>
+			{this.renderErrorMessage()}
 		</div>
 		)
 	}

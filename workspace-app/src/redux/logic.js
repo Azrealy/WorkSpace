@@ -2,12 +2,16 @@
 
 import {
   fetchApiTodoListLogic,
-  postApiTodoLogic
+  postApiTodoLogic,
+  deleteApiTodoLogic,
+  updateApiTodoLogic
 } from '../logic/todo'
 
 const rootLogic = [
   fetchApiTodoListLogic,
-  postApiTodoLogic
+  postApiTodoLogic,
+  deleteApiTodoLogic,
+  updateApiTodoLogic
 ]
 
 export default rootLogic

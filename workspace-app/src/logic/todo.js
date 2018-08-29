@@ -4,6 +4,8 @@ import { createLogic } from 'redux-logic'
 import errorObject from './helper'
 import {
   FETCH_API_TODO_LIST,
+  DELETE_API_TODO,
+  UPDATE_API_TODO,
   fetchApiTodoListSucceed,
 	fetchApiTodoListFailed,
 	fetchApiTodoList
@@ -57,3 +59,45 @@ export const postApiTodoLogic = createLogic({
   }
 })
 
+
+export const deleteApiTodoLogic = createLogic({
+	type: DELETE_API_TODO,
+	latest: true,
+
+	process({ action, webClient, apiURL }, dispatch: Dispatch, done: () => void): Rx.Observable {
+    const { deleteTodoId } = action.payload
+    const headers = { 'Content-Type': 'application/json' }
+		console.log(action.payload)
+    webClient.delete(apiURL(`todo/${deleteTodoId}`), headers).subscribe({
+      next() {
+        dispatch(fetchApiTodoList())
+        done()
+      },
+      error(error: ErrorPayload) {
+        throw errorObject(error)
+      }
+    })
+  }
+})
+
+
+export const updateApiTodoLogic = createLogic({
+	type: UPDATE_API_TODO,
+	latest: true,
+
+	process({ action, webClient, apiURL }, dispatch: Dispatch, done: () => void): Rx.Observable {
+    const { updateTodoId, updateText, isCompleted } = action.payload
+    const headers = { 'Content-Type': 'application/json' }
+    const body = { text : updateText, is_completed:  isCompleted}
+		console.log(body)
+    webClient.put(apiURL(`todo/${updateTodoId}`), body, headers).subscribe({
+      next() {
+        dispatch(fetchApiTodoList())
+        done()
+      },
+      error(error: ErrorPayload) {
+        throw errorObject(error)
+      }
+    })
+  }
+})

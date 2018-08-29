@@ -1,8 +1,8 @@
 // @flow
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Button, Card } from 'semantic-ui-react'
-
+import { Button, Card, TextArea } from 'semantic-ui-react'
+import './Todo.css';
 
 type Props = {
   key: Int,
@@ -38,7 +38,7 @@ class Todo extends React.Component<Props, State> {
     })
   }
 	handleUpdate() {
-		this.props.updateTodo(this.props.todo.todoId, this.state.inputValue)
+		this.props.updateTodo(this.props.todo.id, this.state.inputValue, this.props.todo.is_completed)
 		this.setState({
 			isUpdated: true
 		})
@@ -47,17 +47,17 @@ class Todo extends React.Component<Props, State> {
 		this.setState({ isUpdated: true, inputValue: this.props.todo.text })
 	}
   showTask() {
-    const { todo, completeTodo, deleteTodo } = this.props
+    const { todo, updateTodo, deleteTodo } = this.props
     console.log(todo)
     var text = '';
     var button = '';
-    if (todo.isCompleted) {
+    if (todo.is_completed) {
       text = <p className='card-text'>
-      				<s onClick={this.handleUpdate.bind(this)}>{todo.text}</s>
+      				<s onClick={this.handleEdit.bind(this)}>{todo.text}</s>
       			</p>
     } else {
       text =<p className='card-text'>
-        			<b onClick={this.handleUpdate.bind(this)}>{todo.text}</b>
+        			<b onClick={this.handleEdit.bind(this)}>{todo.text}</b>
       			</p>
         }
     if (this.state.isUpdated) {
@@ -65,17 +65,18 @@ class Todo extends React.Component<Props, State> {
         					<Button
                     type="button"
                     className="btn btn-sm btn-outline-secondary"
-                    onClick={() => deleteTodo(todo.todoId)}
+                    onClick={() => deleteTodo(todo.id)}
                 	>Delete</Button>
                 <Button
                     type="button"
                     className="btn btn-sm btn-outline-secondary"
-                    onClick={() => completeTodo(todo.todoId)}
+                    onClick={() => updateTodo(todo.id, todo.text, !todo.is_completed)}
                 >Completed</Button>
             </span>
     } else {
       text = <p className='card-text'>
-          		<textarea type="text" value={this.state.inputValue} onChange={this.handleChange.bind(this)} />
+            <TextArea type="text" autoFocus placeholder='Tell us more' onChange={(e, d) => this.handleChange(e, d)}/>
+          	
                 &nbsp;&nbsp;
                        </p>
             button =
@@ -106,9 +107,11 @@ class Todo extends React.Component<Props, State> {
 
     render() {
         return (
+          <div className="column">
             <Card>
               {this.showTask()}
             </Card>
+          </div>
         )
     };
 }

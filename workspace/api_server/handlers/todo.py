@@ -59,7 +59,8 @@ class TodoInfoHandler(web.RequestHandler):
         """
         req_data = escape.json_decode(self.request.body)
         text = req_data.get('text')
-        result = Todo(id=todo_id, text=text, update_at=time.time()).update()
+        is_completed = req_data.get('is_completed')
+        result = Todo(id=todo_id, text=text, is_completed=is_completed, update_at=time.time()).update()
         self.write({'hasUpdated': result})
 
     def delete(self, todo_id):
@@ -80,9 +81,9 @@ def generate_next_id():
         Return the Highest id plus one,
         if table is empty return 1.
     """
-    todo = Todo.find_all(order_by='id desc', size=1)
-    if todo:
-        return int(todo[0].id) + 1
+    todos = Todo.find_all()
+    if todos:
+        return max([int(todo.id) for todo in todos]) + 1
     else:
         return 1
 

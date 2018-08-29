@@ -12,7 +12,6 @@ export const FETCH_API_TODO_LIST_FAILED = 'api_todo_fetch/FETCH_API_TODO_LIST_FA
 
 export const DELETE_API_TODO = 'api_todo_fetch/DELETE_API_TODO'
 export const UPDATE_API_TODO = 'api_todo_fetch/UPDATE_API_TODO'
-export const COMPLETE_API_TODO = 'api_todo_fetch/COMPLETE_API_TODO'
 
 // type
 type ApiTodoType = {
@@ -65,45 +64,8 @@ export const apiTodosFetchReducer = createReducer(
       R.merge(state, {
         isFetching: false,
         errorMessage: error.message
-      }),
-
-    [DELETE_API_TODO]: (
-      state: ApiTodoInfoFetch,
-      { payload: { deleteTodoId } }
-    ): ApiTodoInfoFetch =>
-      R.merge(state, {
-        deleteTodoId,
-        apiTodos: R.filter(
-          (todo: ApiTodoType) =>
-            (todo.todoId !== deleteTodoId),
-        )
-      }),
-    [UPDATE_API_TODO]: (
-        state: ApiTodoInfoFetch,
-        { payload: { updateTodoId, updateText }}): ApiTodoInfoFetch =>
-        R.merge(state, {
-          updateTodoId,
-          apiTodos: R.map(
-          (todo: ApiTodoType) =>
-            (todo.todoId === updateTodoId
-              ? R.merge(todo, { text: updateText })
-              : todo),
-          state.apiTodos
-        )
-      }),
-    [COMPLETE_API_TODO]: (
-        state: ApiTodoInfoFetch,
-        { payload: { completeTodoId }}): ApiTodoInfoFetch =>
-        R.merge(state, {
-          completeTodoId,
-          apiTodos: R.map(
-            (todo: ApiTodoType) =>
-              (todo.todoId === completeTodoId
-                ? R.merge(todo, {isCompleted: true})
-                : todo),
-          state.apiTodos
-          )
       })
+  
   },
   initialState
 )
@@ -117,7 +79,7 @@ export function fetchApiTodoList(): Action {
   return { type: FETCH_API_TODO_LIST }
 }
 
-export function fetchApiTodoListSucceed(payload: { todos: Array<ApiTodoType>}): Action {
+export function fetchApiTodoListSucceed(payload: { todos: Array<ApiTodoType> }): Action {
   return {
     type: FETCH_API_TODO_LIST_SUCCEED,
     payload
@@ -131,23 +93,16 @@ export function fetchApiTodoListFailed(error: ErrorType): Action {
   }
 }
 
-export function deleteTodoButton(deleteTodoId: string): Action {
+export function deleteTodoButton(deleteTodoId: number): Action {
   return {
     type: DELETE_API_TODO,
     payload: { deleteTodoId }
   }
 }
 
-export function updateTodoButton(updateTodoId: string, updateText: string): Action {
+export function updateTodoButton(updateTodoId: number, updateText: string, isCompleted: boolean): Action {
   return {
     type: UPDATE_API_TODO,
-    payload: { updateTodoId,  updateText}
-  }
-}
-
-export function completeTodoButton(completeTodoId: string): Action {
-  return {
-    type: COMPLETE_API_TODO,
-    payload: { completeTodoId}
+    payload: { updateTodoId,  updateText, isCompleted}
   }
 }
