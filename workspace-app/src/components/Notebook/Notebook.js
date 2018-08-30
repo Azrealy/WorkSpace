@@ -1,10 +1,10 @@
 // @flow
 import React from 'react'
 import { Table, Icon } from 'semantic-ui-react'
-import ProgressExampleIndicating from './NotebookProgressBar'
+import NotebookProgressComponent from './NotebookProgressBar'
 
-const TableExampleFixed = () => (
-  <Table inverted>
+const Notebook = () => (
+  <Table color="red">
     <Table.Header>
       <Table.Row >
         <Table.HeaderCell>Name</Table.HeaderCell>
@@ -22,11 +22,11 @@ const TableExampleFixed = () => (
 			</Icon.Group>
       </Table.Cell>
 			<Table.Cell colSpan="2">
-				<ProgressExampleIndicating/>
+          <NotebookProgressComponent/>
 				</Table.Cell>
       </Table.Row>
     </Table.Body>
   </Table>
 )
 
-export default TableExampleFixed
+export default Notebook

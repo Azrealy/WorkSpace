@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { Button, Progress } from 'semantic-ui-react'
 import './Notebook.css'
 
-export default class ProgressExampleIndicating extends Component {
+class NotebookProgress extends React.Component {
   state = { percent: 33 }
 
   increment = () =>
@@ -26,3 +26,5 @@ export default class ProgressExampleIndicating extends Component {
     )
   }
 }
+
+export default NotebookProgress

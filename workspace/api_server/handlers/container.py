@@ -23,10 +23,10 @@ class ContainerHandler(web.RequestHandler):
         """
         result = Container.find_all()
         if result:
-            self.write({'containers': [t for t in result]})
+            self.write({'container': [t for t in result]})
             app_log.info('get todo succeeded : %s', result)
         else:
-            self.write({'containers': None})
+            self.write({'container': None})
     
     def post(self):
         """

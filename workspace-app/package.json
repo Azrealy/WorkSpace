@@ -67,6 +67,6 @@
     "stylelint": "stylelint src/**/*.css",
     "backend-servers": "yarn run backend-servers:webapi & yarn run backend-servers:orchestrator",
     "backend-servers:webapi": "webapi_server ",
-    "backend-servers:orchestrator": "orchestrator_server"
+    "backend-servers:orchestrator": "orchestrator_server --docker-from-env=True"
   }
 }
