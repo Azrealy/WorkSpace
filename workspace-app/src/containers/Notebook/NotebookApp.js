@@ -1,9 +1,7 @@
 // @flow
 import * as React from 'react'
-import './App.css'
 
-
-const JupyterApp = () => {
+const NotebookApp = () => {
     return (
         <header>
             <h1> Hello jupyter </h1>
@@ -11,4 +9,4 @@ const JupyterApp = () => {
     )
 }
 
-export default JupyterApp
+export default NotebookApp

@@ -6,8 +6,8 @@ import {
 	postApiTodo,
 	ApiTodoInfoPost,
 	initializeApiTodoPost,
-} from '../ducks/post_todo_api'
-import TodoMenuBarComponent from '../components/TodoMenuBar'
+} from '../../ducks/post_todo_api'
+import TodoMenuBarComponent from '../../components/Todo/TodoMenuBar'
 
 type Props = {
 	initialize: Function,

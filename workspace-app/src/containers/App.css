@@ -13,3 +13,7 @@
 .Segment {
   background-color: #222;
 }
+
+a:link {
+  text-decoration: none;
+}

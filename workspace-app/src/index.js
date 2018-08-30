@@ -7,9 +7,8 @@ import registerServiceWorker from './registerServiceWorker';
 import { Provider } from "react-redux";
 import configureStore from './redux/store'
 import App from './containers/App'
-import TodoApp from './containers/TodoApp'
-import JupyterApp from './containers/JupyterApp'
-import { Button, Header, Icon, Image, Menu, Segment, Sidebar, Container } from 'semantic-ui-react'
+import TodoApp from './containers/Todo/TodoApp'
+import NotebookApp from './containers/Notebook/NotebookApp'
 
 
 const store = configureStore()
@@ -20,7 +19,7 @@ render(
     <Router history={history}>
       <Route path="/" component={App}>
       <IndexRoute component={TodoApp} />
-      <Route path="/jupyter" component={JupyterApp}/>
+      <Route path="/notebook" component={NotebookApp}/>
       </Route>
     </Router>
   </Provider>,

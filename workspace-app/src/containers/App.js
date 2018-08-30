@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react'
-import Header from '../components/Header'
+import Header from '../components/Header/Header'
 import './App.css'
 import{ Link } from "react-router";
 import {  Icon, Menu, Segment, Sidebar } from 'semantic-ui-react'
@@ -29,12 +29,16 @@ export default class App extends React.PureComponent {
 						width='thin'
 						onClick={this.handleButtonClick}
 					>
+					<Link to="/">
 						<Menu.Item as='a'>
-							<Link to="/"><Icon name='home'/>Todo</Link>
+							<Icon name='home'/>Todo
             </Menu.Item>
+						</Link>
+						<Link to="/notebook">
 						<Menu.Item as='a'>
-							<Link to="/jupyter"><Icon name='chart pie'/>Notebook</Link>
+							<Icon name='chart pie'/>Notebook
             </Menu.Item>
+						</Link>
 					</Sidebar>
 
 					<Sidebar.Pusher dimmed={visible}>

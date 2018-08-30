@@ -1,12 +1,8 @@
 // @flow
 import * as React from 'react'
-import './index.css';
 import logo from './logo.svg';
-import './App.css'
+import './Header.css'
 
-type Props = {
-    children: React.Node
-}
 
 const Header = () => {
 	return (

@@ -2,14 +2,13 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { ApiTodoInfoFetch } from '../ducks/api_todo'
-import TodoTableComponent from '../components/TodoTable'
+import { ApiTodoInfoFetch } from '../../ducks/api_todo'
+import TodoTableComponent from '../../components/Todo/TodoTable'
 import {
-	completeTodoButton,
 	updateTodoButton,
 	deleteTodoButton
-} from '../ducks/api_todo'
-import { fetchApiTodoList, initializeApiTodoFetch} from '../ducks/api_todo'
+} from '../../ducks/api_todo'
+import { fetchApiTodoList, initializeApiTodoFetch} from '../../ducks/api_todo'
 
 type Props = {
 	apiTodos?: Array,
