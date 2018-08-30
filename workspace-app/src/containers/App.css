@@ -10,8 +10,9 @@
   height: 800px;
 }
 
-.Segment {
-  background-color: #222;
+.Notebook-App {
+  display: flex;
+  justify-content: center;
 }
 
 a:link {

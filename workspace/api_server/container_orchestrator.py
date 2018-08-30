@@ -217,7 +217,6 @@ class ContainerOrchestratorApp(object):
         docker_client : str
             The docker client of docker deamon
         """
-        Container.drop_table()
         Container.create_table()
         redis_client = create_redis_client(redis_url)
         event_manager = EventManager(
@@ -227,7 +226,6 @@ class ContainerOrchestratorApp(object):
         docker_client.running_observable(redis_client)
         ioloop.IOLoop.current().spawn_callback(event_manager.watch_queue)
         ioloop.IOLoop.current().spawn_callback(container_manager.watch_queue)
-
 
 
 main = launch_new_instance = OrchestratorServer.launch_instance

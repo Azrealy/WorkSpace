@@ -1,11 +1,13 @@
 // @flow
 import * as React from 'react'
+import ProgressExampleIndicating from '../../components/Notebook/NotebookTable'
+import '../App.css'
 
 const NotebookApp = () => {
     return (
-        <header>
-            <h1> Hello jupyter </h1>
-        </header>
+        <div className="Notebook-App">
+            <ProgressExampleIndicating/>
+        </div>
     )
 }
 

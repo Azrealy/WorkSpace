@@ -64,6 +64,9 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "flow": "flow",
-    "stylelint": "stylelint src/**/*.css"
+    "stylelint": "stylelint src/**/*.css",
+    "backend-servers": "yarn run backend-servers:webapi & yarn run backend-servers:orchestrator",
+    "backend-servers:webapi": "webapi_server ",
+    "backend-servers:orchestrator": "orchestrator_server"
   }
 }

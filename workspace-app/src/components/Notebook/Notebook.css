@@ -1,0 +1,13 @@
+.ui.active.progress {
+    height: 40px;
+    color: black;
+}
+
+.ui.progress.progress {
+    color: black;
+    font-size: 150%;
+}
+.ui.inverted.table {
+    text-align: center;
+    width: 1000px;
+}

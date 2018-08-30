@@ -1,7 +1,7 @@
 // @flow
 import * as R from 'ramda'
 import React from 'react'
-import { Menu, Segment} from 'semantic-ui-react'
+import { Menu} from 'semantic-ui-react'
 import Todo from './Todo'
 import './Todo.css';
 import PropTypes from 'prop-types'

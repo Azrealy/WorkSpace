@@ -166,7 +166,7 @@ class EventManager(JobRunner):
 
         app_log.info('end run job: %s', operation_type)
 
-    
+    @gen.coroutine
     def create_container(self, container_id, container_name):
         result = Container(
             container_id=container_id,
@@ -177,6 +177,7 @@ class EventManager(JobRunner):
         ).save()
         app_log.info('container has created : %s', result)
 
+    @gen.coroutine
     def update_container(self, container_id):
         container = self._docker_client.inspect_container(container_id)
         status = container.attrs['State'].get('Status')
@@ -190,6 +191,7 @@ class EventManager(JobRunner):
         app_log.info('container check the health : %s', health)        
         app_log.info('container prepared to update : %s', result)
 
+    @gen.coroutine
     def delete_container(self, container_id):
         result = Container(
             container_id=container_id,

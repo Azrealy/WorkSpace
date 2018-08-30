@@ -115,8 +115,6 @@ class DockerAPIClient(object):
         observable = docker_events_observable(docker_events)
         observable.subscribe(DockerEventObserver(redis_client))
 
-
-        
     def inspect_container(self, container_id):
         """
         Inspect container status
