@@ -27,6 +27,7 @@ class TodoMenuBar extends React.Component<Props, State> {
 	handleCreate(event: Event) {
     event.preventDefault()
 		this.props.createTodoButton(this.state.todoText)
+		this.setState({todoText: ''})
   }
 
 	handleInputTodoInfo = (event: Event, data: Object) => {
@@ -58,6 +59,7 @@ class TodoMenuBar extends React.Component<Props, State> {
 						autoFocus
 						width={15}
 						error={this.props.errorMessage}
+						value={this.state.todoText}
 						onChange={(e: Event, d: Object) => this.handleInputTodoInfo(e, d)}
 					/>
 					<Form.Button content='Submit' onClick={event => this.handleCreate(event)}/>

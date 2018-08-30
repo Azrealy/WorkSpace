@@ -74,11 +74,15 @@ class Todo extends React.Component<Props, State> {
                 >Completed</Button>
             </span>
     } else {
-      text = <p className='card-text'>
-            <TextArea type="text" autoFocus placeholder='Tell us more' onChange={(e, d) => this.handleChange(e, d)}/>
-          	
-                &nbsp;&nbsp;
-                       </p>
+      text = 
+            <TextArea
+              type="text"
+              autoFocus
+              placeholder='Tell us more'
+              value={this.state.inputValue}
+              onChange={(e, d) => this.handleChange(e, d)}
+            />
+
             button =
                 <span>
                     <Button

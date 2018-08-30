@@ -3,7 +3,7 @@ import * as React from 'react'
 import Header from '../components/Header'
 import './App.css'
 import{ Link } from "react-router";
-import { Button, Icon, Image, Menu, Segment, Sidebar } from 'semantic-ui-react'
+import {  Icon, Menu, Segment, Sidebar } from 'semantic-ui-react'
 
 export default class App extends React.PureComponent {
 	state = { visible: false }
@@ -20,7 +20,7 @@ export default class App extends React.PureComponent {
 				<Sidebar.Pushable as={Segment} className="SideBar">
 					<Sidebar
 						as={Menu}
-						animation='overlay'
+						animation='slide along'
 						icon='labeled'
 						inverted
 						onHide={this.handleSidebarHide}
