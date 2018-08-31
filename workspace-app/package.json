@@ -39,6 +39,7 @@
     "flow-typed": "^2.3.0",
     "http-proxy": "^1.16.2",
     "http-server": "^0.11.1",
+    "react-sortable-hoc": "^0.8.2",
     "husky": "^0.14.3",
     "jest-enzyme": "^4.2.0",
     "jest-localstorage-mock": "^2.2.0",
@@ -67,6 +68,6 @@
     "stylelint": "stylelint src/**/*.css",
     "backend-servers": "yarn run backend-servers:webapi & yarn run backend-servers:orchestrator",
     "backend-servers:webapi": "webapi_server ",
-    "backend-servers:orchestrator": "orchestrator_server --docker-from-env=True"
+    "backend-servers:orchestrator": "orchestrator_server"
   }
 }

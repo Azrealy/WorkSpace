@@ -67,7 +67,7 @@ export const deleteApiTodoLogic = createLogic({
 	process({ action, webClient, apiURL }, dispatch: Dispatch, done: () => void): Rx.Observable {
     const { deleteTodoId } = action.payload
     const headers = { 'Content-Type': 'application/json' }
-		console.log(action.payload)
+
     webClient.delete(apiURL(`todo/${deleteTodoId}`), headers).subscribe({
       next() {
         dispatch(fetchApiTodoList())
@@ -89,7 +89,6 @@ export const updateApiTodoLogic = createLogic({
     const { updateTodoId, updateText, isCompleted } = action.payload
     const headers = { 'Content-Type': 'application/json' }
     const body = { text : updateText, is_completed:  isCompleted}
-		console.log(body)
     webClient.put(apiURL(`todo/${updateTodoId}`), body, headers).subscribe({
       next() {
         dispatch(fetchApiTodoList())

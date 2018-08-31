@@ -17,8 +17,8 @@ class TodoTable extends React.Component<Props>	{
 	constructor(props) {
 		super(props);
 		this.state = {
-			activeItem: "all"
-		}
+			activeItem: 'all'
+		} 
 	}
 	renderNoTodoList = () => {
 		return <h1>No todo exist.</h1>
@@ -26,15 +26,14 @@ class TodoTable extends React.Component<Props>	{
 
 	renderTodoList = (todo: Object, idx: number) => {
 		return (
-		<Todo 
-			key={idx}
-			todo={todo}
-			deleteTodo={this.props.deleteTodo}
-			updateTodo={this.props.updateTodo}/>
+				<Todo 
+					key={idx}
+					todo={todo}
+					deleteTodo={this.props.deleteTodo}
+					updateTodo={this.props.updateTodo}/>
 		)
 	}
 	handleItemClick = (e, {name}) => {
-		console.log(name)
 		this.setState({ activeItem: name })
 	}
 	menuOfVisibility = () => {
@@ -73,8 +72,8 @@ class TodoTable extends React.Component<Props>	{
 
 	render() {
 		return (
-		<div className="todo-table">
-    	<div className="todo-table-row">
+		<div className>
+    	<div className>
 				{this.menuOfVisibility()}
 				{this.renderTodoListBody()}
     	</div>

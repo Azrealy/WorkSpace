@@ -11,7 +11,6 @@ import {
 	createNotebookRejected,
 	deleteNotebookAccepted,
 	deleteNoteboookRejected,
-	closeNotebookCreateModal,
 	CREATE_NOTEBOOK,
 	DELETE_NOTEBOOK,
 	FETCH_NOTEBOOK,
@@ -57,7 +56,7 @@ export const fetchNotebookLogic = createLogic({
 
   process({ webClient, apiURL }): Rx.Observable {
 		const headers = { 'Content-Type': 'application/json' }
-		return webClient.get(apiURL('container'), headers, true).catch((error: ErrorPayload) => {
+		return webClient.get(apiURL('container'), headers).catch((error: ErrorPayload) => {
 						throw errorObject(error)
 				})
 		}
@@ -91,13 +90,11 @@ export const createJupyterNotebookLogic = createLogic({
 				.post(apiURL(`container`), bodyParams, headers)
 				.subscribe({
 						next() {
-								dispatch(closeNotebookCreateModal())
 								dispatch(createNotebookAccepted())
 								done()
 						},
 						error(errorPayload: ErrorPayload) {
 								const error = errorObject(errorPayload)
-								dispatch(closeNotebookCreateModal())
 							  dispatch(createNotebookRejected(error))
 								done()
 						}
@@ -119,12 +116,9 @@ export const deleteJupyterNotebookLogic = createLogic({
 
 	process({ action, webClient, apiURL }): Rx.Observable {
 			const headers = { 'Content-Type': 'application/json' }
-			const { containerName } = action.payload
-			const bodyParams = {
-				container_name: containerName
-			}
+			const { notebookName } = action.payload
 			return webClient
-				.delete(apiURL(`container`), bodyParams, headers)
+				.delete(apiURL(`container/${notebookName}`), headers)
 				.catch((error: ErrorPayload) => {
 						throw errorObject(error)
 				})

@@ -1,19 +1,39 @@
 // @flow
 import React, { Component } from 'react'
-import { Button, Progress } from 'semantic-ui-react'
+import { Button, Progress, Table, Icon } from 'semantic-ui-react'
 import './Notebook.css'
 
 class NotebookProgress extends React.Component {
-  state = { percent: 33 }
 
-  increment = () =>
-    this.setState({
-      percent: this.state.percent >= 100 ? 0 : this.state.percent + 20,
-    })
+  constructor(props) {
+    super(props)
+    this.state = {
+      percent: 0
+    }
+  }
+
+  componentWillMount() {
+    if (this.props.container.state !== 'running' || this.props.container.health !== 'healthy') {
+      this.setState({percent: 25})
+    } else if (this.props.container.state === 'running') {
+      this.setState({percent: 50})
+    } else if (this.props.container.health === 'healthy') {
+      this.setState({percent: 70})
+    }
+    this.setState({percent: 100})
+    this.props.completeProgress()
+  }
 
   render() {
     return (
-      <div>
+      <Table.Row verticalAlign="middle">
+        <Table.Cell>
+          <Icon.Group size='huge'>
+            <Icon loading name='cog' />
+            <Icon loading corner name='cog' />
+          </Icon.Group>
+        </Table.Cell>
+      <Table.Cell colSpan="2">
         <Progress 
           percent={this.state.percent}
           indicating
@@ -21,8 +41,8 @@ class NotebookProgress extends React.Component {
           className="ClusterRow"
           active
           autoSuccess/>
-        <Button onClick={this.increment}>Increment</Button>
-      </div>
+        </Table.Cell>
+    </Table.Row>
     )
   }
 }

@@ -7,11 +7,24 @@ import {
   updateApiTodoLogic
 } from '../logic/todo'
 
+import {
+  deleteJupyterNotebookLogic,
+  createJupyterNotebookLogic,
+  refreshClusterListLogic,
+  fetchNotebookLogic,
+  pollJupyterNotebookLogic
+}from '../logic/notebook'
+
 const rootLogic = [
   fetchApiTodoListLogic,
   postApiTodoLogic,
   deleteApiTodoLogic,
-  updateApiTodoLogic
+  updateApiTodoLogic,
+  deleteJupyterNotebookLogic,
+  createJupyterNotebookLogic,
+  refreshClusterListLogic,
+  fetchNotebookLogic,
+  pollJupyterNotebookLogic
 ]
 
 export default rootLogic

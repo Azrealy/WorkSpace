@@ -1,7 +1,6 @@
 // @flow
 import * as R from 'ramda'
 import createReducer from '../redux/createReducer'
-import type { notebookInfo } from '../components/notebook/notebookCreateModal'
 
 // Actions
 
@@ -40,7 +39,7 @@ type Container = {
 }
 
 export type notebookState = {
-	+notebook: ?Container,
+	+container: ?Container,
 	+isFetching: boolean,
 	+showDeleteConfirmTargetnotebook: ?notebookName,
 	+messages: Array<{ type: string, messages: string }>
@@ -49,7 +48,7 @@ export type notebookState = {
 // Reducer
 
 export const initialState: notebookState = {
-	notebook: null,
+	container: null,
 	isFetching: false,
 	showDeleteConfirmTargetnotebook: null,
 	messages: []
@@ -70,9 +69,9 @@ export const notebookReducer = createReducer(
 		): notebookState =>
 		R.merge(state, {
 			isFetching: false,
-			notebook: container
+			container: container
 		}),
-	[FETCH_notebook_LIST_FAILED]: (state: notebookState, { payload: { error } }): notebookState =>
+	[FETCH_NOTEBOOK_FAILED]: (state: notebookState, { payload: { error } }): notebookState =>
 		R.merge(state, {
 			isFetching: false,
 			messages: R.uniq(R.append({ type: 'error', message: error.message }, state.messages))
@@ -146,10 +145,10 @@ export function fetchNotebookSucceeded(payload: { container: Container }): Actio
 }
 
 export function fetchNotebookFailed(error: ErrorType): Action {
-		return {
-				type: FETCH_notebook_LIST_FAILED,
-				payload: { error }
-		}
+	return {
+		type: FETCH_NOTEBOOK_FAILED,
+		payload: { error }
+	}
 }
 
 export function createNotebook(containerName: string): Action {
