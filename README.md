@@ -47,7 +47,7 @@ Running the Web API server and orchestrator server:
 ```
 Using this `curl_tests/<bash.sh>` to check the server response.
 
-# Setup the frontend client
+# Setup the Front End client
 At the frontend I use yarn to manager the package. First move to the dir `workspace-app` and run `yarn` to fetch the package we need.
 ```sh
 (dev-workspace)% cd workspace-app
