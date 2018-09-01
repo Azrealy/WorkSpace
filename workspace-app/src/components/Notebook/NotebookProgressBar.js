@@ -8,11 +8,11 @@ class NotebookProgress extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      percent: 0
+      percent: 0,
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     if (this.props.container.state !== 'running' || this.props.container.health !== 'healthy') {
       this.setState({percent: 25})
     } else if (this.props.container.state === 'running') {
@@ -21,7 +21,6 @@ class NotebookProgress extends React.Component {
       this.setState({percent: 70})
     }
     this.setState({percent: 100})
-    this.props.completeProgress()
   }
 
   render() {

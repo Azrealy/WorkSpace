@@ -1,6 +1,6 @@
 // @flow
 import React from 'react'
-import { Table, Icon, Label, Button, Header, Form } from 'semantic-ui-react'
+import { Table, Icon, Input, Button, Header, Form, Popup, Label } from 'semantic-ui-react'
 import NotebookProgressComponent from './NotebookProgressBar'
 import Clipboard from 'clipboard'
 
@@ -9,13 +9,14 @@ class NotebookTable extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      isProgressing: false,
+      isCreating: false,
+      isDeleting: false,
       name: ''
     }
   }
 
   completeProgress = () => {
-    this.setState({ isProgressing: false })
+    this.setState({ isCreating: false })
   }
 
   renderLoading = () => {
@@ -27,12 +28,12 @@ class NotebookTable extends React.Component {
   }
 
   creatingButton = () => {
-    this.setState({isProgressing: true})
+    this.setState({isCreating: true, isDeleting: false})
     this.props.createNotebook(this.state.name)
   }
 
   deletingButton = () => {
-    this.setState({isProgressing: true})
+    this.setState({ isDeleting: true, isCreating: false})
     this.props.deleteNotebook(this.props.container.container_name)
   }
 
@@ -50,21 +51,35 @@ class NotebookTable extends React.Component {
         </Table.Cell>
         <Table.Cell>
           <Header as='h2' textAlign='center'>
-            {this.props.container.status}
+            {this.props.container.health}
           </Header>
         </Table.Cell>
         <Table.Cell>
-          <Label size='medium' id="new-api-token">
-            <Button size='small' 
-              icon="linkify"
-              className="copy"
-              attached="right"
-              data-clipboard-target="#new-api-token"/> {url+'?token='+token}
+          <Popup
+            on="click"
+            size="mini"
+            trigger={
+              <Button
+                size="mini"
+                id={`copy-jupyter-token`}
+                icon="clipboard"
+                attached="left"
+                className="copy"
+                data-clipboard-target={`#new-api-token`}
+              />
+            }
+            content='Copy to Clipboard'
+          />
+          <Label id='new-api-token'>
+            {url+'/?token='+token}
           </Label>
           <Button 
+            size="mini"
+            primary
+            loading={this.state.isDeleting}
             content='DELETE'
             icon='delete'
-            labelPosition='right'
+            labelPosition='left'
             onClick={this.deletingButton}
             />
         </Table.Cell>
@@ -78,9 +93,9 @@ class NotebookTable extends React.Component {
 	}
 
   renderBasicView = () => (
-    <Table.Row verticalAlign="middle">
+    <Table.Row verticalAlign="left">
       <Table.Cell colSpan="3">
-        <Form>
+        <Form loading={this.state.isCreating}> 
           <Form.Input
             autofocus
             label='Container Name'
@@ -88,6 +103,9 @@ class NotebookTable extends React.Component {
             onChange={(e, d) => this.handleInputContainerName(e, d)}
             />
           <Form.Button
+            size="mini"
+            primary
+            loading={this.state.isCreating}
             floated='right'
             content='Create'
             icon='play'
@@ -104,12 +122,10 @@ class NotebookTable extends React.Component {
       return this.renderLoading()
     } else if (this.props.container === null) {
       return this.renderBasicView()
-    } else if (this.props.container.health === 'healthy' && !this.state.isProgressing){
+    } else if (this.props.container.health === 'healthy'){
       return this.renderCreatedView()
     } else {
-      return <NotebookProgressComponent 
-                container={this.props.container}
-                completeProgress={this.completeProgress}/>
+      return <NotebookProgressComponent container={this.props.container}/>
     }
   }
 
