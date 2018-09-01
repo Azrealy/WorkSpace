@@ -1,8 +1,6 @@
 // @flow
-import createDebug from 'debug'
 import * as R from 'ramda'
 import Rx from 'rxjs'
-import type { Debugger } from 'debug'
 
 class WebClient {
   ajax: (...rest: Array<any>) => Rx.Observable

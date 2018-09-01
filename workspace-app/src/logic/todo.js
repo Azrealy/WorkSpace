@@ -86,9 +86,9 @@ export const updateApiTodoLogic = createLogic({
 	latest: true,
 
 	process({ action, webClient, apiURL }, dispatch: Dispatch, done: () => void): Rx.Observable {
-    const { updateTodoId, updateText, isCompleted } = action.payload
+    const { updateTodoId, updateText, isCompleted, comment } = action.payload
     const headers = { 'Content-Type': 'application/json' }
-    const body = { text : updateText, is_completed:  isCompleted}
+    const body = { text: updateText, is_completed: isCompleted, comment: comment}
     webClient.put(apiURL(`todo/${updateTodoId}`), body, headers).subscribe({
       next() {
         dispatch(fetchApiTodoList())

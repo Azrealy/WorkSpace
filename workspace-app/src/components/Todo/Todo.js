@@ -1,14 +1,14 @@
 // @flow
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Button, Card, TextArea } from 'semantic-ui-react'
-import './Todo.css';
+import { Button, TextArea, List, Icon, Popup, Form } from 'semantic-ui-react'
+import './Todo.css'
+import { emojiIndex } from 'emoji-mart'
 
 type Props = {
   key: Int,
   todo: Object,
   deleteTodo: Function,
-  completeTodo: Function,
   updateTodo: Fuction
 }
   
@@ -22,13 +22,14 @@ class Todo extends React.Component<Props, State> {
 		super(props);
 		this.state = {
 			isUpdated: true,
-			inputValue: this.props.todo.text
+      inputValue: this.props.todo.text,
+      inputComment: ""
 		}
 	}
     
-	handleEdit() {
+	handleEdit = () => {
 		this.setState({
-			isUpdated: false
+    isUpdated: !this.state.isUpdated
 		})
 	}
   handleChange = (event: Event, data: Object) => {
@@ -37,84 +38,148 @@ class Todo extends React.Component<Props, State> {
       inputValue: data.value
     })
   }
-	handleUpdate() {
-		this.props.updateTodo(this.props.todo.id, this.state.inputValue, this.props.todo.is_completed)
+
+  handleCommentChange = (event: Event, data: Object) => {
+    event.preventDefault()
+    this.setState({
+      inputComment: data.value
+    })
+  }
+	handleUpdate = () => {
+    this.props.updateTodo(
+      this.props.todo.id, 
+      this.state.inputValue,
+      this.props.todo.is_completed,
+      this.state.inputComment)
 		this.setState({
-			isUpdated: true
+      isUpdated: true,
+      inputComment: ""
 		})
 	}
-	handleCancel() {
+	handleCancel = () => {
 		this.setState({ isUpdated: true, inputValue: this.props.todo.text })
-	}
-  showTask() {
-    const { todo, updateTodo, deleteTodo } = this.props
-    console.log(todo)
-    var text = '';
-    var button = '';
-    if (todo.is_completed) {
-      text = <p className='card-text'>
-      				<s onClick={this.handleEdit.bind(this)}>{todo.text}</s>
-      			</p>
+  }
+  
+  renderEmoji = (todo:Object) => {
+    if (todo.sentiment === '' ) {
+      return null
     } else {
-      text =<p className='card-text'>
-        			<b onClick={this.handleEdit.bind(this)}>{todo.text}</b>
-      			</p>
-        }
-    if (this.state.isUpdated) {
-      button = <span>
-        					<Button
-                    type="button"
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={() => deleteTodo(todo.id)}
-                	>Delete</Button>
-                <Button
-                    type="button"
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={() => updateTodo(todo.id, todo.text, !todo.is_completed)}
-                >Completed</Button>
-            </span>
-    } else {
-      text = 
-            <TextArea
-              type="text"
-              autoFocus
-              placeholder='Tell us more'
-              value={this.state.inputValue}
-              onChange={(e, d) => this.handleChange(e, d)}
-            />
-
-            button =
-                <span>
-                    <Button
-                        type="button"
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={this.handleUpdate.bind(this)}
-                    >Update</Button>
-                    <Button
-                        type="button"
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={this.handleCancel.bind(this)}
-                    >Cancel</Button>
-                </span>
-        }
-
+        console.log(todo.sentiment)
         return (
-            <Card.Content>
-                {text}
-                <div className='ui two buttons'>
-                  {button}
-                </div>
-            </Card.Content>
+          <div>{emojiIndex.search(todo.sentiment).map((o) => o.native)}</div>
         )
     }
+  }
+  renderListHeader = (todo: Object) => {
+    if (todo.is_completed) {
+      return <List.Header as='s'>{todo.text}</List.Header>
+    } else {
+      return <List.Header as='h1'>{todo.text}</List.Header>
+    }
+  }
+  renderTextContent = (todo: Object) => {
+    return (
+      <div>
+        <List.Content floated='middle'>
+          {this.renderListHeader(todo)}
+        </List.Content>
+        <List.Content floated='left'>
+          <List.Description as='h6'>
+            <Icon name='time' color='yellow' />Created at {todo.created_at}
+            {this.renderEmoji(this.props.todo)}
+          </List.Description>
+        </List.Content>
+      </div>
+    )
 
+  }
 
+  renderFormForUpdate = () => {
+    return (
+    <Form>
+      <Form.Group>
+          <Form.Field 
+            control={TextArea}
+            label='Edit new todo'
+            autoFocus value={this.state.inputValue}
+            onChange={(e, d) => this.handleChange(e, d)}/>
+      </Form.Group>
+        <Form.Field
+          control={TextArea}
+          label='Comment (Analysis your emotion)'
+          autoFocus 
+          onChange={(e, d) => this.handleCommentChange(e, d)}
+          placeholder={this.props.todo.comment} />
+      <Form.Field>
+          <Button color='red' inverted size="mini" onClick={this.handleUpdate}>
+            <Icon name='remove' /> Update
+      </Button>
+          <Button color='green' size="mini" inverted onClick={this.handleCancel}>
+            <Icon name='checkmark' /> Cancel
+      </Button>                   
+      </Form.Field>
+    </Form>
+    )
+  }
+
+  renderUpdateContent = (todo: Object) => {
+      return (
+        <div>
+          <List.Content floated='right'>
+            <Popup
+              on='click'
+              position='bottom center'
+              open={!this.state.isUpdated}
+              trigger={           
+                    <Button
+                      circular
+                      fitted
+                      size="mini"
+                      icon="undo alternate"
+                      color='yellow'
+                      onClick={this.handleEdit}
+                    ></Button>
+              }>
+            {this.renderFormForUpdate()}
+            </Popup>
+
+            <Popup
+              content='Delete todo'
+              position='bottom center'
+              trigger={
+                <Button
+                  circular
+                  fitted
+                  size="mini"
+                  icon="delete"
+                  color='red'
+                  onClick={() => this.props.deleteTodo(todo.id)}
+                ></Button>
+              } />
+            <Popup
+              content='Complete todo'
+              position='bottom center'
+              trigger={
+                <Button
+                  circular
+                  fitted
+                  size="mini"
+                  icon="check"
+                  color='green'
+                  onClick={() => this.props.updateTodo(todo.id, todo.text, !todo.is_completed)}
+                ></Button>
+              } />
+
+        </List.Content> 
+        </div>
+      )
+  }
     render() {
+      const { todo } = this.props
         return (
-          <div className="column">
-            <Card>
-              {this.showTask()}
-            </Card>
+          <div>
+            {this.renderTextContent(todo)}
+            {this.renderUpdateContent(todo)}
           </div>
         )
     };
@@ -124,7 +189,7 @@ Todo.propTypes = {
 	todo: PropTypes.object.isRequired,
 	editTodo: PropTypes.func.isRequired,
 	deleteTodo: PropTypes.func.isRequired,
-	toggleTodo: PropTypes.func.isRequired
+  updateTodo: PropTypes.func.isRequired
 }
 
 export default Todo

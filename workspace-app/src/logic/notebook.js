@@ -1,5 +1,4 @@
 // @flow
-import createDebug from 'debug'
 import Rx from 'rxjs'
 import { createLogic } from 'redux-logic'
 import errorObject from './helper'

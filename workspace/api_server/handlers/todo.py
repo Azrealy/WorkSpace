@@ -4,6 +4,8 @@ from workspace.model.fields.todo import Todo
 from datetime import datetime
 from tornado.log import app_log
 import time
+import requests
+import json
 
 class TodoListHandler(web.RequestHandler):
 
@@ -60,7 +62,21 @@ class TodoInfoHandler(web.RequestHandler):
         req_data = escape.json_decode(self.request.body)
         text = req_data.get('text')
         is_completed = req_data.get('is_completed')
-        result = Todo(id=todo_id, text=text, is_completed=is_completed, update_at=time.time()).update()
+        app_log.info("show the reqdate %s", req_data )
+        comment = req_data.get('comment')
+        app_log.info("show the comment %s", comment)
+        if comment is not None:
+            if comment != '':
+                response = json.loads(requests.post("https://apis.paralleldots.com/v3/emotion",  # Give up the ssl protocol
+                                    data={"api_key": "LLzFyEAbBiAwBQs1YKKUsS4zV9MZ9QPw6zUWKsmaN6U", "text": comment, "lang_code": "en"}).text)
+                emotion = response['emotion']['emotion']
+                result = Todo(id=todo_id, comment=comment,
+                            sentiment=emotion, update_at=time.time()).update()
+            else:
+                result = Todo(id=todo_id, comment=comment, sentiment='', update_at=time.time()).update()
+        else:
+            result = Todo(id=todo_id, text=text,
+                          is_completed=is_completed, update_at=time.time()).update()
         self.write({'hasUpdated': result})
 
     def delete(self, todo_id):

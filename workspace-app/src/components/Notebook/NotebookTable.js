@@ -1,6 +1,6 @@
 // @flow
 import React from 'react'
-import { Table, Icon, Input, Button, Header, Form, Popup, Label } from 'semantic-ui-react'
+import { Table, Icon, Button, Header, Form, Popup, Label } from 'semantic-ui-react'
 import NotebookProgressComponent from './NotebookProgressBar'
 import Clipboard from 'clipboard'
 
@@ -20,11 +20,13 @@ class NotebookTable extends React.Component {
   }
 
   renderLoading = () => {
-    <Table.Row>
-      <Table.Cell colSpan="3">
-        <Icon loading name="spinner" />Loading...
-      </Table.Cell>
-    </Table.Row>
+    return (
+      <Table.Row>
+        <Table.Cell colSpan="3">
+          <Icon loading name="spinner" />Loading...
+        </Table.Cell>
+      </Table.Row>
+    )
   }
 
   creatingButton = () => {

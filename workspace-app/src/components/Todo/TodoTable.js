@@ -1,7 +1,7 @@
 // @flow
 import * as R from 'ramda'
 import React from 'react'
-import { Menu} from 'semantic-ui-react'
+import { Menu, List} from 'semantic-ui-react'
 import Todo from './Todo'
 import './Todo.css';
 import PropTypes from 'prop-types'
@@ -26,11 +26,14 @@ class TodoTable extends React.Component<Props>	{
 
 	renderTodoList = (todo: Object, idx: number) => {
 		return (
+			<List.Item> 
 				<Todo 
 					key={idx}
 					todo={todo}
+					isFetching={this.props.isFetching}
 					deleteTodo={this.props.deleteTodo}
 					updateTodo={this.props.updateTodo}/>
+			</List.Item>
 		)
 	}
 	handleItemClick = (e, {name}) => {
@@ -72,12 +75,15 @@ class TodoTable extends React.Component<Props>	{
 
 	render() {
 		return (
-		<div className>
-    	<div className>
+    	<div >
 				{this.menuOfVisibility()}
-				{this.renderTodoListBody()}
+
+					<List divided verticalAlign='left'>
+						{this.renderTodoListBody()}
+					</List>
+
+
     	</div>
-		</div>
 		)
 	}
 }

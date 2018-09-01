@@ -5,7 +5,6 @@ from workspace.model.fields.todo import Todo
 from tornado.log import LogFormatter, app_log, access_log, gen_log
 from tornado import web, ioloop, gen
 from workspace.api_server.handlers.todo import TodoListHandler, TodoInfoHandler
-from workspace.api_server.handlers.comment import CommentInfoHandler
 from workspace.api_server.handlers.container import ContainerHandler, ContainerDeleteHandler
 from tornado.httpserver import HTTPServer
 from traitlets import Dict, Integer, Unicode, observe, Float, Bool
@@ -183,7 +182,6 @@ class WebAPIApp(web.Application):
 
         handlers = [
             (r'/todo/([^/]*)', TodoInfoHandler, context),
-            (r'/comment/([^/]*)', CommentInfoHandler, context),
             (r'/todo', TodoListHandler, context),
             (r'/container', ContainerHandler, context),
             (r'/container/([^/]*)', ContainerDeleteHandler, context)

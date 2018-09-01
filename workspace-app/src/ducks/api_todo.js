@@ -100,9 +100,9 @@ export function deleteTodoButton(deleteTodoId: number): Action {
   }
 }
 
-export function updateTodoButton(updateTodoId: number, updateText: string, isCompleted: boolean): Action {
+export function updateTodoButton(updateTodoId: number, updateText: string, isCompleted: boolean, comment: string): Action {
   return {
     type: UPDATE_API_TODO,
-    payload: { updateTodoId,  updateText, isCompleted}
+    payload: { updateTodoId,  updateText, isCompleted, comment}
   }
 }

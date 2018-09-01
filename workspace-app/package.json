@@ -6,6 +6,7 @@
     "classnames": "^2.2.5",
     "clipboard": "^2.0.0",
     "debug": "^3.1.0",
+    "emoji-mart": "^2.8.1",
     "jwt-decode": "^2.2.0",
     "prop-types": "^15.6.1",
     "ramda": "^0.25.0",
@@ -55,6 +56,7 @@
     "redux-logic-test": "^1.0.5",
     "stylefmt": "^6.0.0",
     "stylelint": "^9.1.1",
+    "emoji-mart": "^2.8.1",
     "stylelint-config-standard": "^18.1.0",
     "uuid": "^3.2.1"
   },
@@ -68,6 +70,6 @@
     "stylelint": "stylelint src/**/*.css",
     "backend-servers": "yarn run backend-servers:webapi & yarn run backend-servers:orchestrator",
     "backend-servers:webapi": "webapi_server ",
-    "backend-servers:orchestrator": "orchestrator_server"
+    "backend-servers:orchestrator": "orchestrator_server --docker-from-env=True"
   }
 }

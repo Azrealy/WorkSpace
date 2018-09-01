@@ -1,6 +1,6 @@
 // @flow
-import React, { Component } from 'react'
-import { Button, Progress, Table, Icon } from 'semantic-ui-react'
+import React from 'react'
+import {  Progress, Table, Icon } from 'semantic-ui-react'
 import './Notebook.css'
 
 class NotebookProgress extends React.Component {
