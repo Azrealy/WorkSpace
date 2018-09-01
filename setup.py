@@ -10,7 +10,7 @@ requirements = [str(r.req) for r in parse_requirements(requirements_file, sessio
 
 setup(
     name='workspace',
-    version='0.0.1',
+    version='1.0.1',
     description='WorkSpace back end web applications',
     long_description='',
     author='Azrealy',
