@@ -58,6 +58,24 @@ after the package be installed you can run the client.
 (dev-workspace)% yarn start
 ```
 if the server is working you can access the port 3000 to see this app.
+
+# Setup the Postgres database
+
+Install the `Postgres` use package manager like `yum` or `brew` and start the service. And check the version of postgres.
+```sh
+(dev-workspace)% postgres -V
+postgres (PostgreSQL) 10.5
+```
+While it is certainly convenient that Postgres sets up a set of default users for us. We use this role to create our new role and database. Here we create new role and add the `CREATEDB` permission to our new user to allow them to create databases.
+```sh
+(dev-workspace)% psql postgres -c "CREATE ROLE workspace WITH LOGIN PASSWORD 'password';"
+(dev-workspace)% psql postgres -c "ALTER ROLE workspace CREATEDB;"
+``` 
+Create a database and add one user who has permission to access this database.
+```sh
+(dev-workspace)% psql postgres -c "CREATE DATABASE teatdb;"
+```
+
 # Architecture of Docker container server
 
 * `ContainerManager` class for handle the `docker run` and `docker rm` cmd to create/remove container by using subprocess.
