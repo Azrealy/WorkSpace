@@ -61,7 +61,6 @@ after the package be installed you can run the client.
 ```
 if the server is working you can access the port 3000 to see this app.
 
-<<<<<<< .merge_file_j1nayO
 # Setup the Postgres database
 
 Install the `Postgres` use package manager like `yum` or `brew` and start the service. And check the version of postgres.
@@ -79,8 +78,6 @@ Create a database and add one user who has permission to access this database.
 (dev-workspace)% psql postgres -c "CREATE DATABASE teatdb;"
 ```
 
-=======
->>>>>>> .merge_file_oK0pMp
 # Architecture of Docker container server
 
 * `ContainerManager` class for handle the `docker run` and `docker rm` cmd to create/remove container by using subprocess.
