@@ -11,18 +11,19 @@ from workspace.utility import create_redis_client
 
 class ContainerHandler(web.RequestHandler):
 
-
-    def initialize(self, redis_url, **kwargs):
+    def initialize(self, psql_pool, redis_url, **kwargs):
         """
         Initializes BaseRequestHandler.
         """
         self._redis_url = redis_url
+        self._psql_pool = psql_pool
 
+    @gen.coroutine
     def get(self):
         """
         GET /container
         """
-        result = Container.find_all()
+        result = yield Container(self._psql_pool).find_all()
         if result:
             self.write({"container": result[0]})
             app_log.info('get todo succeeded : %s', {"container": result[0]})

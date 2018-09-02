@@ -147,7 +147,7 @@ class OrchestratorServer(Application):
         logger.parent = self.log
         logger.setLevel(self.log.level)
 
-        
+    @gen
     def ini_orchestrator_server(self):
         docker_client_ini = {
                 'from_env': self.docker_from_env,
@@ -157,6 +157,7 @@ class OrchestratorServer(Application):
                 'tlscert': self.docker_tlscert,
                 'tlskey': self.docker_tlskey
             }
+        Container().create_table()
         docker_client = DockerAPIClient(3, str(self.docker_api_version), **docker_client_ini)
         ContainerOrchestratorApp(self.redis_url, docker_client, self.jupyter_token, self.jupyter_port)
 
@@ -217,7 +218,6 @@ class ContainerOrchestratorApp(object):
         docker_client : str
             The docker client of docker deamon
         """
-        Container.create_table()
         redis_client = create_redis_client(redis_url)
         event_manager = EventManager(
             redis_client, docker_client, jupyter_token, jupyter_port)
