@@ -204,11 +204,11 @@ class OrchestratorServer(Application):
 
 class ContainerOrchestratorApp(object):
     """
-    Job Server Application for AACluster Orchestrator
+    Job Server Application for Orchestrator server
     """
     def __init__(self, redis_url, docker_client, jupyter_token, jupyter_port):
         """
-        Initializes AAClusterOrchestratorApp.
+        Initializes OrchestratorApp.
 
         Parameters
         ----------

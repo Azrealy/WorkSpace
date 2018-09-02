@@ -128,3 +128,5 @@ Create hashed jupyter password, using the ipython terminal
 * <s>Create docker-compose.yml for building cluster jupyter images.</s>
 * <s>Implement WorkSpace front end UI for CREUD `todo` object.</s>
 * <s>Implement WorkSpace front end UI for Create/Delete `jupyter` container.</s>
+* Implement a Postgres Database and create momoko connection pool for tornado asyc db process.
+* Update backend server with asyc process.

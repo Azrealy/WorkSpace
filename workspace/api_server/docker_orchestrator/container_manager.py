@@ -23,7 +23,7 @@ class ContainerManager(JobRunner):
 
     def __init__(self, redis_client, docker_client, jupyter_token, jupyter_port):
         """
-        Initializes AAClusterStateUpdater
+        Initializes StateUpdater
 
         Parameters
         ----------
