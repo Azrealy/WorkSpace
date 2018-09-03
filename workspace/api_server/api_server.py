@@ -2,6 +2,7 @@
 import signal
 import logging
 from workspace.model.fields.todo import Todo
+from workspace.model.fields.container import Container
 from tornado.log import LogFormatter, app_log, access_log, gen_log
 from tornado import web, ioloop, gen
 from workspace.api_server.handlers.todo import TodoListHandler, TodoInfoHandler
@@ -9,7 +10,7 @@ from workspace.api_server.handlers.container import ContainerHandler, ContainerD
 from tornado.httpserver import HTTPServer
 from traitlets import Dict, Integer, Unicode, observe, Float, Bool
 from traitlets.config.application import catch_config_error, Application
-from workspace.utility import create_redis_client
+from workspace.utility import create_redis_client, create_psql_connection_pool
 
 
 class WebAPIServer(Application):
@@ -23,18 +24,17 @@ class WebAPIServer(Application):
         'ip': 'WebAPIServer.ip',
         'port': 'WebAPIServer.port',
         'redis-url': 'WebAPIServer.redis_url',
-        'database_url': 'WebAPIServer.database_url'
+        'psql-url': 'WebAPIServer.psql_url'
     }
 
-    database_url = Unicode(
-        '', config=True,
+    psql_url = Unicode(
+        'postgres:///workdb', config=True,
         help='The database url.'
     )
     ip = Unicode(
         '', config=True,
         help='The IP address the server will listen on.'
     )
-
 
     flags = {
         'debug': (
@@ -116,14 +116,19 @@ class WebAPIServer(Application):
         logger.parent = self.log
         logger.setLevel(self.log.level)
 
+    @gen.coroutine
     def init_webapp(self):
         """
         Initializes Web Application to launch WebAPI Server.
         """
+        psql_pool = create_psql_connection_pool(
+            self.psql_url, ioloop.IOLoop.current())
         self.web_app = WebAPIApp(
-            self.database_url,
+            psql_pool,
             self.redis_url
         )
+        yield Container(psql_pool).create_table()
+        yield Todo(psql_pool).create_table()
         self.http_server = HTTPServer(self.web_app)
         self.http_server.listen(self.port)
 
@@ -172,11 +177,10 @@ class WebAPIServer(Application):
 
 class WebAPIApp(web.Application):
     
-    def __init__(self, database_url, redis_url):
-
-        Todo.create_table()
+    def __init__(self, psql_pool, redis_url):
+       
         context = {
-            'database_url': database_url,
+            'psql_pool': psql_pool,
             'redis_url': redis_url
         }
 
