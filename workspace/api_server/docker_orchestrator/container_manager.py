@@ -53,6 +53,7 @@ class ContainerManager(JobRunner):
         container_name = job['container_name']
 
         app_log.info('start run job: %s', operation_type)
+        app_log.info('start run job with container name : %s', container_name)
 
         env = dict(
             os.environ, CONTAINER_TOKEN=self._token, CONTAINER_PORT=self._port,

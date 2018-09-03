@@ -316,10 +316,8 @@ class Model(object, metaclass=ModelMetaclass):
            ', '.join(map(lambda f: '{}=%s'.format(f), self._dict)),
            self.PRIMARY_KEY
         )
-        app_log.info('ssss %s', self._dict)
         args = list(map(self._get_value_or_default, self._dict))
         args.append(self._get_value_or_default(self.PRIMARY_KEY))
-        app_log.info('update arg %s', args)
         cursor = yield self._pool.execute(sql, args)
         count = cursor.rowcount
         result = True if count == 1 else False

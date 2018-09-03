@@ -25,17 +25,25 @@ class ContainerHandler(web.RequestHandler):
         """
         result = yield Container(self._psql_pool).find_all()
         if result:
-            self.write({"container": result[0]})
-            app_log.info('get todo succeeded : %s', {"container": result[0]})
+            result[0]['created_at'] = float(result[0]['created_at'])
+            result[0]['update_at'] = float(result[0]['update_at'])
+            self.write({'container': result[0]})
+            app_log.info('get todo succeeded : %s', {'container': result[0]})
         else:
             self.write({'container': None})
     
+    @gen.coroutine
     def post(self):
         """
         POST /container
         """
         req_data = escape.json_decode(self.request.body)
         container_name = req_data.get('container_name')
+        yield Container(
+            self._psql_pool,
+            container_name=container_name,
+            status='creating'
+        ).save()
         payload = {
             'operation': 'create_container',
             'container_name': container_name

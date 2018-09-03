@@ -6,16 +6,46 @@ from .event import DockerEvent
 from tornado.log import app_log
 from tornado.escape import json_encode
 from .event_manager import EventManager
+from datetime import timedelta
+from tornado.httpclient import HTTPError
+from datetime import datetime, timezone
 
 
-def docker_events_observable(events):
+def docker_events(docker_client, reconnect_wait=5.0):
+    """
+    Creates observable sequence from the real-time events
+    stream of the docker daemon.
 
+    Parameters
+    ----------
+    docker_client : DockerClient
+        DockerClient object.
+    reconnect_wait : float
+        Reconnection wait time on unexpected error occurred.
+        (sec)
+
+    Returns
+    -------
+    observable_ : rx.Observable
+        The observable sequence which contains `DockerEvent`s from
+        the docker daemon.
+    """
+    @gen.coroutine
     def receive_event(observer):
+        since = datetime.now(timezone.utc).timestamp()
+        while True:
+            try:
+                yield docker_client.events(since=since, on_event=observer.on_next)
+            except HTTPError as e:
+                app_log.exception('unexpected http error occurred. reconnect...')
+                yield gen.sleep(reconnect_wait)
 
-        for e in events:
-            observer.on_next(e)
+    def wrap_coroutine(observer):
+        # wrap coroutine because Observable.subscribe() cannot return Future object.
+        receive_event(observer)
 
-    return Observable.create(receive_event)
+    return rx.Observable.create(wrap_coroutine)
+
 
 class DockerEventObserver(rx.Observer):
 
@@ -26,7 +56,6 @@ class DockerEventObserver(rx.Observer):
 
     @gen.coroutine
     def on_next(self, event):
-        event = DockerEvent(event)
         if not event.event_type_is_container or event.action not in self.ACCEPTABLE_ACTIONS:
             return
 

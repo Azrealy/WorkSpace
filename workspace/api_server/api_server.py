@@ -2,6 +2,7 @@
 import signal
 import logging
 from workspace.model.fields.todo import Todo
+from workspace.model.fields.container import Container
 from tornado.log import LogFormatter, app_log, access_log, gen_log
 from tornado import web, ioloop, gen
 from workspace.api_server.handlers.todo import TodoListHandler, TodoInfoHandler
@@ -27,14 +28,13 @@ class WebAPIServer(Application):
     }
 
     psql_url = Unicode(
-        'dbname=workdb', config=True,
+        'postgres:///workdb', config=True,
         help='The database url.'
     )
     ip = Unicode(
         '', config=True,
         help='The IP address the server will listen on.'
     )
-
 
     flags = {
         'debug': (
@@ -127,6 +127,7 @@ class WebAPIServer(Application):
             psql_pool,
             self.redis_url
         )
+        yield Container(psql_pool).create_table()
         yield Todo(psql_pool).create_table()
         self.http_server = HTTPServer(self.web_app)
         self.http_server.listen(self.port)
