@@ -1,7 +1,8 @@
 // @flow
 import React from 'react'
-import {  Progress, Table, Icon } from 'semantic-ui-react'
+import { Table, Icon } from 'semantic-ui-react'
 import './Notebook.css'
+import { ProgressBar } from 'react-bootstrap';
 
 const NotebookProgress = (props) => {
 
@@ -27,14 +28,8 @@ const NotebookProgress = (props) => {
           <Icon loading corner name='cog' />
         </Icon.Group>
       </Table.Cell>
-    <Table.Cell colSpan="2">
-      <Progress 
-        percent={percent()}
-        indicating
-        size='large'
-        className="ClusterRow"
-        active
-        autoSuccess/>
+    <Table.Cell colSpan="3">
+      <ProgressBar now={percent()} label={`${percent()}%`} active />;
       </Table.Cell>
   </Table.Row>
   )

@@ -10,8 +10,9 @@
     "jwt-decode": "^2.2.0",
     "prop-types": "^15.6.1",
     "ramda": "^0.25.0",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
+    "react": "^16.4.2",
+    "react-bootstrap": "^0.32.3",
+    "react-dom": "^16.4.2",
     "react-redux": "^5.0.7",
     "react-router": "^3.2.0",
     "react-router-redux": "^4.0.8",
@@ -69,7 +70,7 @@
     "flow": "flow",
     "stylelint": "stylelint src/**/*.css",
     "backend-servers": "yarn run backend-servers:webapi & yarn run backend-servers:orchestrator",
-    "backend-servers:webapi": "webapi_server",
-    "backend-servers:orchestrator": "orchestrator_server"
+    "backend-servers:webapi": "webapi_server --psql-url='postgres:///aaweb'",
+    "backend-servers:orchestrator": "orchestrator_server --psql-url='postgres:///aaweb'"
   }
 }

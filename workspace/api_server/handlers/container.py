@@ -6,7 +6,7 @@ from workspace.model.fields.container import Container
 from datetime import datetime
 from tornado.log import app_log
 from ..docker_orchestrator.container_manager import ContainerManager
-from workspace.utility import create_redis_client
+from workspace.utility import create_redis_client, transform_created_time
 
 
 class ContainerHandler(web.RequestHandler):
@@ -25,10 +25,8 @@ class ContainerHandler(web.RequestHandler):
         """
         result = yield Container(self._psql_pool).find_all()
         if result:
-            result[0]['created_at'] = float(result[0]['created_at'])
-            result[0]['update_at'] = float(result[0]['update_at'])
-            self.write({'container': result[0]})
-            app_log.info('get todo succeeded : %s', {'container': result[0]})
+            self.write(dict(container=transform_created_time(result[0])))
+            app_log.info('get container succeeded : %s', {'container': result[0]})
         else:
             self.write({'container': None})
     

@@ -171,11 +171,10 @@ class EventManager(JobRunner):
     @gen.coroutine
     def delete_container(self, container_name):
         """
-        Delete container.
+        Delete container from the database.
 
         Parameters
         ----------
-
         container_name : str
             Docker container name
         """
@@ -207,8 +206,8 @@ class EventManager(JobRunner):
 
         Returns
         -------
-        inspect_result : DockerInspectResult
-            DockerInspectResult object.
+        inspect_result : dict(response)
+            Dict response from docker client.
 
         Raises
         ------

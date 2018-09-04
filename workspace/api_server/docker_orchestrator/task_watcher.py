@@ -52,10 +52,26 @@ class DockerEventObserver(rx.Observer):
     ACCEPTABLE_ACTIONS = ['create', 'start', 'die', 'destroy', 'health_status: healthy',
                           'health_status: unhealthy']
     def __init__(self, redis_client):
+        """
+        Initialize the Docker Event Observer
+        
+        Parameters
+        ----------
+        redis_client:
+            The client of redis.
+        """
         self.redis_client = redis_client
 
     @gen.coroutine
     def on_next(self, event):
+        """
+        Handle docker event which callback from AsyncHTTPClient.
+
+        Parameters
+        ----------
+        event: DockerEvent
+            Information about the docker event.
+        """
         if not event.event_type_is_container or event.action not in self.ACCEPTABLE_ACTIONS:
             return
 
@@ -71,7 +87,7 @@ class DockerEventObserver(rx.Observer):
             'container_id': event.container_id,
             'container_name': event.name
         }
-        app_log.info('docker event payload has stored in redis: %s', payload)
+        app_log.debug('docker event payload has stored in redis: %s', payload)
         self.redis_client.rpush(EventManager.QUEUE_KEY, json_encode(payload))
 
     def on_error(self, error):

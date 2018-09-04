@@ -78,7 +78,7 @@ class TodoTable extends React.Component<Props>	{
     	<div >
 				{this.menuOfVisibility()}
 
-					<List divided verticalAlign='left'>
+					<List divided verticalAlign='left' animated celled relaxed>
 						{this.renderTodoListBody()}
 					</List>
 
