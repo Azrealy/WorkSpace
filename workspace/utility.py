@@ -3,6 +3,7 @@ import momoko
 from tornado import gen
 from tornado.locks import Lock
 from redis.client import Redis
+import time as tm
 
 
 class RecordIsNotFoundError(Exception):
@@ -133,3 +134,41 @@ def create_redis_client(url, pool_size=10):
         A client to run redis command.
     """
     return Redis.from_url(url, max_connections=pool_size)
+
+
+def transform_created_time(result):
+    """
+    Transform created time to string
+    """
+    result['created_at']= convert_time_to_message(result['created_at'])
+    result['update_at'] = float(result['update_at'])
+    if result['update_at'] != 0:
+        result['update_at'] = convert_time_to_message(result['update_at'])
+    return result
+
+
+def convert_time_to_message(epoch_time):
+    """
+    Convert time to message
+
+    Parameters
+    ----------
+    epoch_time : float
+        Float point number of epoch time
+    
+    Returns
+    -------
+    message : str
+        Message of elapsed time
+    """
+    delta = int(tm.time() - float(epoch_time))
+    if delta < 60:
+        return '1 mins ago'
+    if delta < 3600:
+        return '%s mins ago' % (delta // 60)
+    if delta < 86400:
+        return '%s hours ago' % (delta // 3600)
+    if delta < 604800:
+        return '%s days ago' % (delta // 86400)
+    dt = datetime.fromtimestamp(epoch_time)
+    return '%s year %s month %s day ago' % (dt.year, dt.month, dt.day)

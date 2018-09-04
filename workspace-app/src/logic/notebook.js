@@ -94,7 +94,7 @@ export const createJupyterNotebookLogic = createLogic({
 						},
 						error(errorPayload: ErrorPayload) {
 								const error = errorObject(errorPayload)
-							  dispatch(createNotebookRejected(error))
+							  	dispatch(createNotebookRejected(error))
 								done()
 						}
 				})

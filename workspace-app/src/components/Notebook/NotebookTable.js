@@ -1,6 +1,6 @@
 // @flow
 import React from 'react'
-import { Table, Icon, Button, Header, Form, Popup, Label } from 'semantic-ui-react'
+import { Table, Icon, Button, Header, Form, Popup, Label, Message, Input } from 'semantic-ui-react'
 import NotebookProgressComponent from './NotebookProgressBar'
 import Clipboard from 'clipboard'
 
@@ -15,6 +15,21 @@ class NotebookTable extends React.Component {
     }
   }
 
+  renderErrorMessage = () => {
+    console.log(this.props.messages)
+		if (this.props.messages.length !== 0) {
+			return (
+				<Message error>
+					<Message.Header>
+						There was some errors with your server or requests
+					</Message.Header>
+					<p>{this.props.messages.message}</p>
+				</Message>
+			)
+    } else  {
+      return null
+    }
+	}
   completeProgress = () => {
     this.setState({ isCreating: false })
   }
@@ -51,33 +66,49 @@ class NotebookTable extends React.Component {
             <Icon loading corner name='cog' />
           </Icon.Group>
         </Table.Cell>
-        <Table.Cell>
-          <Header as='h2' textAlign='center'>
+        <Table.Cell positive>
+          <Header as='h3' textAlign='center'>
             {this.props.container.health}
           </Header>
-        </Table.Cell>
-        <Table.Cell>
-          <Popup
-            on="click"
-            size="mini"
-            trigger={
-              <Button
-                size="mini"
-                id={`copy-jupyter-token`}
-                icon="clipboard"
-                attached="left"
-                className="copy"
-                data-clipboard-target={`#new-api-token`}
-              />
-            }
-            content='Copy to Clipboard'
-          />
-          <Label id='new-api-token'>
-            {url+'/?token='+token}
-          </Label>
+          <Label>Created at {this.props.container.created_at}</Label>
+        </Table.Cell >
+        <Table.Cell textAlign='center'>
+        <Header>
+        <a href={url} target="_blank">Jupyter Notebook </a> <br/>
+        </Header>
+
+        <Input
+              size="mini"
+              type="text"
+              id='new-api-token'
+              readOnly
+              position="bottom left"
+              labelPosition="left"
+              label={
+                <Popup
+                  on="click"
+                  size="mini"
+                  trigger={
+                    <Button
+                      id={`copy-jupyter-token`}
+                      icon="clipboard"
+                      attached="left"
+                      className="copy"
+                      data-clipboard-target={`#new-api-token`}
+                    />
+                  }
+                  content='Copy to Clipboard'
+                  />}
+            value={token}
+            />
+
+          </Table.Cell>
+          <Table.Cell>
+            <Header/>
           <Button 
             size="mini"
             primary
+            disabled={this.state.isDeleting}
             loading={this.state.isDeleting}
             content='DELETE'
             icon='delete'
@@ -96,7 +127,7 @@ class NotebookTable extends React.Component {
 
   renderBasicView = () => (
     <Table.Row verticalAlign="left">
-      <Table.Cell colSpan="3">
+      <Table.Cell colSpan="4">
         <Form loading={this.state.isCreating}> 
           <Form.Input
             autofocus
@@ -108,6 +139,7 @@ class NotebookTable extends React.Component {
             size="mini"
             primary
             loading={this.state.isCreating}
+            disabled={this.props.messages.length === 0 ? false: true}
             floated='right'
             content='Create'
             icon='play'
@@ -120,6 +152,7 @@ class NotebookTable extends React.Component {
   )
 
   renderTableBody = () => {
+    console.log(this.props.container)
     if (this.props.isFetching) {
       return this.renderLoading()
     } else if (this.props.container === null) {
@@ -133,17 +166,18 @@ class NotebookTable extends React.Component {
 
   render() {
     return (
-      <Table color="red">
+      <Table color="red" celled padded>
         <Table.Header>
           <Table.Row >
             <Table.HeaderCell>Name</Table.HeaderCell>
             <Table.HeaderCell>Status</Table.HeaderCell>
             <Table.HeaderCell>Description</Table.HeaderCell>
+            <Table.HeaderCell>Operation</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
-
-        <Table.Body>
+        <Table.Body >
           {this.renderTableBody()}
+          {this.renderErrorMessage()}
         </Table.Body>
       </Table>
 

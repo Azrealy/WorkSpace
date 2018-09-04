@@ -178,7 +178,9 @@ class WebAPIServer(Application):
 class WebAPIApp(web.Application):
     
     def __init__(self, psql_pool, redis_url):
-       
+        """
+        Initialize the web application.
+        """
         context = {
             'psql_pool': psql_pool,
             'redis_url': redis_url

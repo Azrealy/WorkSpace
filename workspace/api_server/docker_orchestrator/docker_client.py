@@ -53,7 +53,7 @@ class DockerAPIClient(object):
             `DOCKER_CERT_PATH/key.pem` (DOCKER_CERT_PATH is a environment
             variable and `/.docker` is used if DOCKER_CERT_PATH does
             not exist).
-	    """
+        """
         m = re.match('tcp://(.*):(.*)', host or os.getenv('DOCKER_HOST', ''))
         if m is None:
             raise ValueError('Cannot get URL of Docker Daemon.')
@@ -61,7 +61,6 @@ class DockerAPIClient(object):
         port = m.group(2)
 
         self.client_params = {}
-        self.compose_connection_opts = ['--host', host or os.getenv('DOCKER_HOST', '')]
         use_tls = tlsverify if tlsverify is not None else os.getenv('DOCKER_TLS_VERIFY', '') != ''
         if use_tls:
             self.base_url = 'https://{}:{}'.format(hostname, port)
@@ -83,15 +82,10 @@ class DockerAPIClient(object):
                 self.client_params['client_key'] = tlskey
             else:
                 self.client_params['client_key'] = str(default_cert_path / 'key.pem')
-
-            self.compose_connection_opts.extend(['--tlsverify',
-                                                 '--tlscacert', self.client_params['ca_certs'],
-                                                 '--tlscert', self.client_params['client_cert'],
-                                                 '--tlskey', self.client_params['client_key']])
         else:
             self.base_url = 'http://{}:{}'.format(hostname, port)
 
-    def _make_http_client(self):
+    def _make_asy_http_client(self):
         """
         Makes the AsyncHTTPClient.
 
@@ -104,9 +98,9 @@ class DockerAPIClient(object):
 
     @gen.coroutine
     def _call_api(self, method, path, headers={'Content-Type': 'application/json'},
-                  body=None, body_producer=None, **kwargs):
+                  body=None, **kwargs):
         """
-        Calls Docker API
+        Calls Docker API use AsyncHTTPClient of tornado
 
         Parameters
         ----------
@@ -118,10 +112,9 @@ class DockerAPIClient(object):
             Request Headers.
         body : str or bytes
             Request Body.
-        body_producer : func
-            Callable used for lazy/asynchronous request bodies.
         kwargs : dict
             Other parameters to pass `AsyncHTTPClient.fetch()`.
+            what can also overwrite the `self.client_params` parameters.
 
         Returns
         -------
@@ -130,12 +123,11 @@ class DockerAPIClient(object):
         """
         api_url = '{}{}'.format(self.base_url, path)
         app_log.debug('call docker api: %s', api_url)
-        http_client = self._make_http_client()
+        http_client = self._make_asy_http_client()
         result = yield http_client.fetch(api_url,
                                          method=method,
                                          headers=headers,
                                          body=body,
-                                         body_producer=body_producer,
                                          **dict(self.client_params, **kwargs))
         app_log.debug('complete to call docker api: %s', api_url)
         return result
@@ -156,9 +148,7 @@ class DockerAPIClient(object):
             Python timestamp(float/micro sec)
             Show events created until given timestamp
         on_event : function
-            Callback function that gets DockerEvent
-            object as an argument.
-            This function is called whenever each event is emitted.
+            Callback function which this is given by obsever.on()
 
         Returns
         -------
@@ -168,6 +158,7 @@ class DockerAPIClient(object):
         """
         @gen.coroutine
         def _on_event(event):
+            yield gen.sleep(2)
             yield gen.maybe_future(on_event(DockerEvent(event)))
 
         query_params = {}
@@ -179,43 +170,10 @@ class DockerAPIClient(object):
         streaming_callback = _on_event if on_event else None
 
         # Set 315360000 (10 years) to request_timeout to avoid timeout
-        # before the time specified by `until`,
-        # because the default value of request_timeout is 20sec
         response = yield self._call_api('GET', url_concat('/events', query_params),
                                         streaming_callback=streaming_callback,
                                         request_timeout=315360000)
         return dict(response=response.body.decode())
-
-    @gen.coroutine
-    def list_containers(self, all=False, filters=None, **kwargs):
-        """
-        Calls 'GET /containers/json'
-
-        Parameters
-        ----------
-        all : bool
-            Lists all containers if it sets True; otherwise lists
-            running containers.
-        filters : dict{str: str}
-            Settings to filter list of containers.
-        kwargs : dict{str: list[str]}
-            Other API parameters.
-
-        Returns
-        -------
-        container_list: list of dict
-            API Response as JSON.
-        """
-        query_params = {}
-        query_params.update(kwargs)
-        if all:
-            query_params['all'] = '1'
-
-        if filters:
-            query_params['filters'] = json.dumps(filters)
-
-        response = yield self._call_api('GET', url_concat('/containers/json', query_params))
-        return json_decode(response.body)
 
     @gen.coroutine
     def inspect_container(self, id):

@@ -2,12 +2,14 @@
 This project is a work space application where implement some usefull tools at my daily development.
 
 # Requirement
+
 * pip version 9.0.1
 * docker version 18.06.0-ce
 * python version 3.6
 * redis version 4.0.11
 * yarn version 1.7.0
 * jq version 1.5 (For test the server response)
+* postgres version 9.2.23
 
 # About this Project
 
@@ -131,5 +133,5 @@ Create hashed jupyter password, using the ipython terminal
 * <s>Create docker-compose.yml for building cluster jupyter images.</s>
 * <s>Implement WorkSpace front end UI for CREUD `todo` object.</s>
 * <s>Implement WorkSpace front end UI for Create/Delete `jupyter` container.</s>
-* Implement a Postgres Database and create momoko connection pool for tornado asyc db process.
-* Update backend server with asyc process.
+* <s>Implement Postgres Database and create momoko connection pool for tornado asyc db process.</s>
+* <s>Update backend server with asyc process.</s>
