@@ -31,7 +31,6 @@ class OrchestratorServer(Application):
         'docker-tlscacert': 'OrchestratorServer.docker_tlscacert',
         'docker-tlscert': 'OrchestratorServer.docker_tlscert',
         'docker-tlskey': 'OrchestratorServer.docker_tlskey',
-        'docker-from-env': 'OrchestratorServer.docker_from_env',
         'docker-api-version': 'OrchestratorServer.docker_api_version',
         'psql-url': 'OrchestratorServer.psql_url'
     }
@@ -125,11 +124,6 @@ class OrchestratorServer(Application):
         help='The version of the API to use. Default: ``1.24``'
     )
 
-    docker_from_env = Bool(
-        False, config=True,
-        help='The version of the API to use. Default: ``1.24``'
-    )
-
     redis_url = Unicode(
         'redis://localhost:6379/0',
         help='The url of the Redis'
@@ -157,7 +151,7 @@ class OrchestratorServer(Application):
     def ini_orchestrator_server(self):
         psql_pool = create_psql_connection_pool(
             self.psql_url, ioloop.IOLoop.current())
-        docker_client_ini =             {
+        docker_client_ini = {
                 'host': self.docker_host,
                 'tlsverify': self.docker_tlsverify,
                 'tlscacert': self.docker_tlscacert,
