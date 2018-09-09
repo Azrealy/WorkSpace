@@ -29,7 +29,7 @@ const NotebookProgress = (props) => {
         </Icon.Group>
       </Table.Cell>
     <Table.Cell colSpan="3">
-      <ProgressBar now={percent()} label={`${percent()}%`} active />;
+      <ProgressBar now={percent()} label={`${percent()}%`} active />
       </Table.Cell>
   </Table.Row>
   )
