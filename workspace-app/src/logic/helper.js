@@ -38,15 +38,11 @@ function errorValidation(errorPayload: ErrorPayload): Array<{
  * @return {Object} The ErrorType object
  */
 function errorObject(errorPayload: ErrorPayload): ErrorType {
-  const errorObj = {
+  return  {
     message: errorMessage(errorPayload),
     status: errorPayload.status,
     validationErrors: errorValidation(errorPayload)
   }
-  if ('tokenRefreshError' in errorPayload) {
-    return R.assoc('tokenRefreshError', errorPayload.tokenRefreshError, errorObj)
-  }
-  return errorObj
 }
 
 export default errorObject

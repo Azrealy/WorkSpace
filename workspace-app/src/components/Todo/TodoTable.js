@@ -54,9 +54,9 @@ class TodoTable extends React.Component<Props>	{
 		if (this.state.activeItem === 'all') {
 			return this.props.todos
 		} else if (this.state.activeItem === 'completed') {
-			return R.filter(todo => todo.is_completed === 1, this.props.todos)
+			return R.filter(todo => todo.is_completed === true, this.props.todos)
 		} else if (this.state.activeItem === 'active') {
-			return R.filter((todo) => todo.is_completed === 0, this.props.todos)
+			return R.filter((todo) => todo.is_completed === false, this.props.todos)
 		}
 	}
 
@@ -78,7 +78,7 @@ class TodoTable extends React.Component<Props>	{
     	<div >
 				{this.menuOfVisibility()}
 
-					<List divided verticalAlign='left'>
+					<List divided verticalAlign='left' animated celled relaxed>
 						{this.renderTodoListBody()}
 					</List>
 

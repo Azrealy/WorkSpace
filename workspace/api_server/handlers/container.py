@@ -6,35 +6,42 @@ from workspace.model.fields.container import Container
 from datetime import datetime
 from tornado.log import app_log
 from ..docker_orchestrator.container_manager import ContainerManager
-from workspace.utility import create_redis_client
+from workspace.utility import create_redis_client, transform_created_time
 
 
 class ContainerHandler(web.RequestHandler):
 
-
-    def initialize(self, redis_url, **kwargs):
+    def initialize(self, psql_pool, redis_url, **kwargs):
         """
         Initializes BaseRequestHandler.
         """
         self._redis_url = redis_url
+        self._psql_pool = psql_pool
 
+    @gen.coroutine
     def get(self):
         """
         GET /container
         """
-        result = Container.find_all()
+        result = yield Container(self._psql_pool).find_all()
         if result:
-            self.write({"container": result[0]})
-            app_log.info('get todo succeeded : %s', {"container": result[0]})
+            self.write(dict(container=transform_created_time(result[0])))
+            app_log.info('get container succeeded : %s', {'container': result[0]})
         else:
             self.write({'container': None})
     
+    @gen.coroutine
     def post(self):
         """
         POST /container
         """
         req_data = escape.json_decode(self.request.body)
         container_name = req_data.get('container_name')
+        yield Container(
+            self._psql_pool,
+            container_name=container_name,
+            status='creating'
+        ).save()
         payload = {
             'operation': 'create_container',
             'container_name': container_name

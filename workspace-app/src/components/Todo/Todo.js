@@ -65,8 +65,12 @@ class Todo extends React.Component<Props, State> {
       return null
     } else {
         console.log(todo.sentiment)
+        const sentiment = 
+          todo.sentiment === 'Excited'
+            ? 'happy'
+            : todo.sentiment
         return (
-          <div>{emojiIndex.search(todo.sentiment).map((o) => o.native)}</div>
+          <div>{emojiIndex.search(sentiment).map((o) => o.native)}</div>
         )
     }
   }

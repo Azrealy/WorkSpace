@@ -121,9 +121,9 @@ class EventManager(JobRunner):
     """
     QUEUE_KEY = 'workspace:job-queue:even-manager'
 
-    def __init__(self, redis_client, docker_client, jupyter_token, jupyter_port):
+    def __init__(self, redis_client, docker_client, jupyter_token, jupyter_port, psql_pool):
         """
-        Initializes AAClusterStateUpdater
+        Initializes StateUpdater
 
         Parameters
         ----------
@@ -137,6 +137,7 @@ class EventManager(JobRunner):
         self._docker_client = docker_client
         self._token = jupyter_token
         self._port = jupyter_port
+        self._psql_pool = psql_pool
 
     @gen.coroutine
     def run_job(self, job):
@@ -156,44 +157,108 @@ class EventManager(JobRunner):
         app_log.info('start run job: %s', operation_type)
 
         if operation_type == 'create_instance':
-            self.create_container(container_id, container_name)
+            yield self.create_or_update_container(container_id, container_name)
         elif operation_type == 'update_instance_status':
-            self.update_container(container_id)
+            yield self.create_or_update_container(container_id, container_name)
         elif operation_type == 'delete_instance':
-            self.delete_container(container_id)
+            yield self.delete_container(container_name)
         else:
             app_log.warn('Received invalid job: %s', job)
 
         app_log.info('end run job: %s', operation_type)
 
-    @gen.coroutine
-    def create_container(self, container_id, container_name):
-        result = Container(
-            container_id=container_id,
-            status='creating',
-            container_name=container_name,
-            jupyter_token=self._token,
-            jupyter_url='http://localhost:{}'.format(self._port)
-        ).save()
-        app_log.info('container has created : %s', result)
 
     @gen.coroutine
-    def update_container(self, container_id):
-        container = self._docker_client.inspect_container(container_id)
-        status = container.attrs['State'].get('Status')
-        health = container.attrs['State'].get('Health', {}).get('Status')
-        result = Container(
+    def delete_container(self, container_name):
+        """
+        Delete container from the database.
+
+        Parameters
+        ----------
+        container_name : str
+            Docker container name
+        """
+        find_result = yield Container(self._psql_pool).find(container_name)
+        if find_result is None:
+            app_log.info('contianer has been deleted: %s', container_name)
+            return
+        result = yield Container(
+            self._psql_pool,
+            container_name=container_name,
+        ).remove()
+        app_log.info('container has be deleted : %s', result)
+
+
+    @gen.coroutine
+    def _inspect_container_with_retry(self, container_id, retry_count=0, retry_wait=0.1):
+        """
+        Inspect container with retry.
+
+        Parameters
+        ----------
+        container_id : str
+            Id of the docker container which is related to the
+            ServiceInstance.
+        retry_count : int
+            Retry count.
+        retry_wait : float
+            Retry wait time on HTTPError occurred. (sec)
+
+        Returns
+        -------
+        inspect_result : dict(response)
+            Dict response from docker client.
+
+        Raises
+        ------
+        tornado.httpclient.HTTPError
+            When failed to inspect container.
+        """
+        try:
+            return (yield self._docker_client.inspect_container(container_id))
+        except HTTPError as e:
+            app_log.debug(
+                'Failed to inspect container %s. it may cause on deleting container.', container_id
+            )
+            if e.code == 404:
+                return None
+            elif retry_count < 10:
+                app_log.debug('retry inspect container %s...', container_id)
+                yield gen.sleep(retry_wait)
+                return (yield self._inspect_container_with_retry(
+                    container_id, retry_count + 1, retry_wait
+                ))
+            else:
+                app_log.warn('Retry limit is exceeded. container=%s', container_id)
+                raise
+
+    @gen.coroutine
+    def create_or_update_container(self, container_id, container_name):
+        """
+        Creates or updates the state of container.
+
+        Parameters
+        ----------
+        container_id : str
+            Id of the docker container.
+
+        container_name : str
+            Docker container name
+        """
+        inspect_container = yield self._inspect_container_with_retry(container_id)
+        if inspect_container is None:
+            app_log.info('Container %s is not found.', container_id)
+            return
+        status = inspect_container['State']['Status']
+        health = inspect_container['State'].get('Health', {}).get('Status')
+        result = yield Container(
+            self._psql_pool,
             container_id=container_id,
+            container_name=container_name,
             status=status,
             health=health,
-            update_at=time.time()
+            update_at=time.time(),
+            jupyter_token=self._token,
+            jupyter_url='http://localhost:{}'.format(self._port)
         ).update()
-        app_log.info('container check the health : %s', health)        
-        app_log.info('container prepared to update : %s', result)
-
-    @gen.coroutine
-    def delete_container(self, container_id):
-        result = Container(
-            container_id=container_id,
-        ).remove()       
-        app_log.info('container has be deleted : %s', result)
+        app_log.info('container update result : %s', result)

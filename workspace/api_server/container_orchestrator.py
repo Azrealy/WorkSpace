@@ -8,10 +8,11 @@ from tornado.httpserver import HTTPServer
 from traitlets import Dict, Integer, Unicode, observe, Float, Bool
 from traitlets.config.application import catch_config_error, Application
 from .docker_orchestrator.docker_client import DockerAPIClient
-from workspace.utility import create_redis_client
+from workspace.utility import create_redis_client, create_psql_connection_pool
 from .docker_orchestrator.event_manager import EventManager
 from workspace.model.fields.container import Container
 from .docker_orchestrator.container_manager import ContainerManager
+from .docker_orchestrator.task_watcher import docker_events, DockerEventObserver
 
 
 class OrchestratorServer(Application):
@@ -30,8 +31,8 @@ class OrchestratorServer(Application):
         'docker-tlscacert': 'OrchestratorServer.docker_tlscacert',
         'docker-tlscert': 'OrchestratorServer.docker_tlscert',
         'docker-tlskey': 'OrchestratorServer.docker_tlskey',
-        'docker-from-env': 'OrchestratorServer.docker_from_env',
         'docker-api-version': 'OrchestratorServer.docker_api_version',
+        'psql-url': 'OrchestratorServer.psql_url'
     }
 
     database_url = Unicode(
@@ -89,7 +90,7 @@ class OrchestratorServer(Application):
     )
 
     jupyter_port = Unicode(
-        '8892', config=True,
+        '8893', config=True,
         help='The port the jupyter container to access.'
     )
 
@@ -123,15 +124,15 @@ class OrchestratorServer(Application):
         help='The version of the API to use. Default: ``1.24``'
     )
 
-    docker_from_env = Bool(
-        False, config=True,
-        help='The version of the API to use. Default: ``1.24``'
-    )
-
     redis_url = Unicode(
         'redis://localhost:6379/0',
         help='The url of the Redis'
     ).tag(config=True)
+
+    psql_url = Unicode(
+        'postgres:///workdb', config=True,
+        help='The database url.'
+    )
 
     def init_logging(self):
         """
@@ -147,18 +148,18 @@ class OrchestratorServer(Application):
         logger.parent = self.log
         logger.setLevel(self.log.level)
 
-        
     def ini_orchestrator_server(self):
+        psql_pool = create_psql_connection_pool(
+            self.psql_url, ioloop.IOLoop.current())
         docker_client_ini = {
-                'from_env': self.docker_from_env,
                 'host': self.docker_host,
                 'tlsverify': self.docker_tlsverify,
                 'tlscacert': self.docker_tlscacert,
                 'tlscert': self.docker_tlscert,
                 'tlskey': self.docker_tlskey
             }
-        docker_client = DockerAPIClient(3, str(self.docker_api_version), **docker_client_ini)
-        ContainerOrchestratorApp(self.redis_url, docker_client, self.jupyter_token, self.jupyter_port)
+        docker_client = DockerAPIClient(**docker_client_ini)
+        ContainerOrchestratorApp(self.redis_url, docker_client, self.jupyter_token, self.jupyter_port, psql_pool)
 
     @catch_config_error
     def initialize(self, argv=None):
@@ -204,11 +205,11 @@ class OrchestratorServer(Application):
 
 class ContainerOrchestratorApp(object):
     """
-    Job Server Application for AACluster Orchestrator
+    Job Server Application for Orchestrator server
     """
-    def __init__(self, redis_url, docker_client, jupyter_token, jupyter_port):
+    def __init__(self, redis_url, docker_client, jupyter_token, jupyter_port, psql_pool):
         """
-        Initializes AAClusterOrchestratorApp.
+        Initializes OrchestratorApp.
 
         Parameters
         ----------
@@ -217,15 +218,14 @@ class ContainerOrchestratorApp(object):
         docker_client : str
             The docker client of docker deamon
         """
-        Container.create_table()
         redis_client = create_redis_client(redis_url)
         event_manager = EventManager(
-            redis_client, docker_client, jupyter_token, jupyter_port)
+            redis_client, docker_client, jupyter_token, jupyter_port, psql_pool)
         container_manager = ContainerManager(
             redis_client, docker_client, jupyter_token, jupyter_port)
-        docker_client.running_observable(redis_client)
+        
         ioloop.IOLoop.current().spawn_callback(event_manager.watch_queue)
         ioloop.IOLoop.current().spawn_callback(container_manager.watch_queue)
-
+        docker_events(docker_client).subscribe(DockerEventObserver(redis_client))
 
 main = launch_new_instance = OrchestratorServer.launch_instance

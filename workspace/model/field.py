@@ -104,7 +104,7 @@ class FloatField(Field):
     Class of FLOAT column type.
     """
 
-    def __init__(self, column_type='REAL', default=0.0, primary_key=False):
+    def __init__(self, column_type='NUMERIC', default=0.0, primary_key=False):
         """
         Parameters
         ---–––––––
