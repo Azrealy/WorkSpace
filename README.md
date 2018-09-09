@@ -79,10 +79,6 @@ Create a database and add one user who has permission to access this database.
 ```sh
 (dev-workspace)% psql postgres -c "CREATE DATABASE teatdb;"
 ```
-<<<<<<< HEAD
-=======
-
->>>>>>> d02d6b22201ee11802f7847ead703766c9e82f65
 # Architecture of Docker container server
 
 * `ContainerManager` class for handle the `docker run` and `docker rm` cmd to create/remove container by using subprocess.
