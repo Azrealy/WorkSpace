@@ -79,6 +79,23 @@ Create a database and add one user who has permission to access this database.
 ```sh
 (dev-workspace)% psql postgres -c "CREATE DATABASE teatdb;"
 ```
+# Setup docker host
+
+Setup docker client you can use the environment variables. Like `DOCKER_HOST` and
+`DOCKER_TLS_VERIFY`, `DOCKER_CERT_PATH`. Which will help you to scale this app run in the VM or Linux system.
+See the office documents for more information of [configure docker-machine](https://docs.docker.com/machine/overview/) for distribute deploy docker daemon in different VM.
+
+As I use Mac OS system, where is not support `dockerd` command to configure docker daemon host. If you are not use Mac OS, here, you can find some information of configure [docker daemon](https://docs.docker.com/config/daemon/). As my solution this to use `socat` command that fork the docker socket connection.
+```bash
+% brew install socat
+% socat -d -d TCP-L:8888,fork UNIX:/var/run/docker.sock
+```
+Here I fork the connection of localhost:8888 to listen the docker.sock. You can check it worked use the following command.
+```bash
+% docker -H localhost:2376 info
+```
+And use this url to run the `orchestrator-server`.
+
 # Architecture of Docker container server
 
 * `ContainerManager` class for handle the `docker run` and `docker rm` cmd to create/remove container by using subprocess.
