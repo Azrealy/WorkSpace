@@ -158,8 +158,10 @@ class DockerAPIClient(object):
         """
         @gen.coroutine
         def _on_event(event):
-            yield gen.sleep(2)
-            yield gen.maybe_future(on_event(DockerEvent(event)))
+            event = event.split(b'\n')
+            del event[-1]
+            for e in event:
+                yield gen.maybe_future(on_event(DockerEvent(e)))
 
         query_params = {}
         if since:
